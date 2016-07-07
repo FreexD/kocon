@@ -1,4 +1,4 @@
-# Django-BucketCounter
+# Kocon
 
 ## Konfiguracja środowiska
 
