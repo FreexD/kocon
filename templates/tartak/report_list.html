@@ -1,0 +1,97 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title" id="myModalLabel">Raport miesięczny</h4>
+</div>
+<div class="modal-body">
+    <h1>Raport z {{ report_date }}</h1>
+    <hr>
+    <h2>Niedostarczone pozycje zamówień</h2>
+        {% if not_fully_shipped %}
+          <table class="table">
+            <thead>
+                <tr>
+                    <th>WZ</th>
+                    <th>Kierowca</th>
+                    <th>Rodzaj drewna</th>
+                    <th>Masa [m³]</th>
+                    <th>Cena [zł]</th>
+                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją zamówioną i dostarczoną."></span></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for order_item in not_fully_shipped %}
+                <tr {% if not order_item.is_fully_shipped %} class="bg-danger" {% else %} class="bg-success" {% endif %}>
+                    <td>{{ order_item.order }}</td>
+                    <td>{{ order_item.order.driver }}</td>
+                    <td>{{ order_item.wood_kind }}</td>
+                    <td>{{ order_item.get_amount_display }}</td>
+                    <td>{{ order_item.get_price_display }}</td>
+                    <td>
+                        {{ order_item.get_difference_display }}
+                    </td>
+                </tr>
+            {% endfor %}
+      </tbody>
+      </table>
+        {% else %}
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> W tym miesiacu nie ma jeszcze niedostarczonych pozycji.
+              </div>
+            </div>
+        {% endif %}
+        <br>
+    <hr/>
+    <h2>Dostawy na plac</h2>
+        {% if plac_shipments %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>WZ</th>
+                    <th>Kierowca</th>
+                    <th>Rodzaj drewna</th>
+                    <th>Masa [m³]</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for shipment in plac_shipments %}
+                <tr>
+                    <td>{{ shipment.order }}</td>
+                    <td>{{ shipment.order.driver }}</td>
+                    <td>{{ shipment.wood_kind }}</td>
+                    <td>{{ shipment.get_amount_display }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+          </table>
+        {% else %}
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> W tym miesiacu nie ma jeszcze dostaw na plac.
+              </div>
+            </div>
+        {% endif %}
+    {% if plac_shipments %}
+        <h2>Na placu</h2>
+            <table class="table">
+            <thead>
+                <tr>
+                    <th>Rodzaj drewna</th>
+                    <th>Masa [m³]</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for wood_kind, amount in plac_aggregate_shipments.items %}
+                <tr>
+                    <td>{{ wood_kind }}</td>
+                    <td>{{ amount }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+          </table>
+    {% endif %}
+
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Zamknij</button>
+</div>

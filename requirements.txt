@@ -1,0 +1,41 @@
+# Install with: `pip install -r requirements.txt`
+
+# Infrastructure
+Django
+#Pillow == 2.9.0
+#for MySQL: MySQL-python >= 1.2.5
+#psycopg2 >= 2.6.1
+#python-memcached == 1.57
+#raven >= 5.12.0
+
+# Django REST Framework
+#djangorestframework >= 3.3.1
+#Markdown >= 2.6.3
+#drfdocs >= 0.0.9
+
+# CMS libraries
+#django-fluent-dashboard >= 0.6.1
+
+# Support libs
+django-debug-toolbar
+bpython
+django-datatable-view
+#django-analytical >= 2.0.0
+#django-admin-tools >= 0.7.2
+#django-axes >= 1.6.0
+#django-compressor >= 2.0
+#django-crispy-forms >= 1.6.0
+#-e git+https://github.com/smacker/django-filebrowser-no-grappelli.git@121c1bcf2c859e8dec8cf43040377ba23e16745b#egg=django-filebrowser-no-grappelli
+#-e git+https://github.com/rizumu/django-ping.git@2ff3985c762654282ba52813043a605b73896654#egg=django_ping-0.3b1
+#pytz >= 2016.3
+#sorl-thumbnail >= 12.3
+
+# Debugging
+#django-debugtools >= 1.6
+#ipython >= 4.1.2
+#ptpython >= 0.32
+
+#Deploying
+#gunicorn >= 19.5.0
+#dj-database-url >= 0.4.1
+#whitenoise >= 3.1

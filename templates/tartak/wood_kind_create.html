@@ -1,0 +1,27 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="index">
+
+    <div class="container theme-showcase" role="main">
+
+      <div class="page-header">
+        <h1>Dodaj pozycję cennika</h1>
+      </div>
+
+    <form method="post" action="{% url 'wood_kind_create' %}">
+        {% csrf_token %}
+
+        {% include 'forms/form_fields.html' with fields=form.visible_fields %}
+
+        <input class="btn btn-default"  type="submit" value="Dodaj" />
+        <a href="{% url 'price_list' %}" class="btn btn-success" > <span class="glyphicon glyphicon-euro" aria-hidden="true" ></span> Wróć do cennika </a>
+    </form>
+
+    </div> <!-- /container -->
+
+    </div>
+
+{% endblock %}

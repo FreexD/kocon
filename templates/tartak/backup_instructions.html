@@ -1,0 +1,29 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="index">
+
+    <div class="container theme-showcase" role="main">
+
+      <div class="page-header">
+        <h1>Backupy</h1>
+      </div>
+
+        <p>Na ten moment nie mozna jeszcze stworzyc backupu bazy z systemu. Do recznego backupowania bazy nalezy odpalic konsole psql i uzyc ponizszych komend.</p>
+        <br>
+        <p>Baze danych backupujemy komenda:</p>
+
+        <kbd> pg_dump {nazwa_bazy} -f {nazwa_pliku}.sql</kbd>
+
+        <br><br>
+        <p>Baze danych przywracamy z backupu komenda:</p>
+
+        <kbd>psql {nazwa_bazy} -f {nazwa_pliku_z_backupem}.sql</kbd>
+
+    </div> <!-- /container -->
+
+    </div>
+
+{% endblock %}

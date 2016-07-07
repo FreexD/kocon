@@ -1,0 +1,51 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title" id="myModalLabel">Szczegóły kontrahenta</h4>
+</div>
+<div class="modal-body">
+    <h1>Kontrahent {{ contractor }}</h1>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>Kod</td>
+                <td>{{ contracor.code }}</td>
+            </tr>
+            <tr>
+                <td>Nazwa</td>
+                <td>{{ contractor }}</td>
+            </tr>
+            <tr>
+                <td>Łacznie dostarczono [m³]</td>
+                <td>{{ contractor.get_all_amount_display }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <h2>Dostawy rodzajów drewna łacznie</h2>
+        {% if contractor.has_shipments %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Rodzaj drewna</th>
+                    <th>Masa [m³]</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for wood_kind, amount  in contractor.get_wood_kind_amount_display_map.items %}
+                <tr>
+                    <td>{{ wood_kind }}</td>
+                    <td>{{ amount }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+          </table>
+        {% else %}
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Ten kontrahent nie ma jeszcze dodanych dostaw.
+              </div>
+            </div>
+        {% endif %}
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Zamknij</button>
+</div>

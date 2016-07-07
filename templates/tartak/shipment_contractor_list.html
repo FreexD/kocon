@@ -1,0 +1,54 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="index">
+
+    <div class="container theme-showcase" role="main">
+
+      <div class="page-header">
+        <h1>Dostawy {% if by_contractor %} {{ contractor }} {% endif %}</h1>
+      </div>
+
+    <h2>Filtry</h2>
+
+    <form class="form-inline">
+            <div class="form-group">
+                <label for="id_month">Kontrahent: </label>
+                {% for field in contractor_form.visible_fields %}
+                    {% include 'forms/form_hidden_field.html' with field=field %}
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <a href="/shipment/" class="btn btn-sm btn-primary order-filter" style="float:right;" > <span class="glyphicon glyphicon-search" aria-hidden="true" ></span> Filtruj </a>
+            </div>
+        </form>
+
+    <br>
+
+    {{ datatable }}
+
+        <br>
+
+        {% if by_contractor %}
+            <a href="{% url 'contractor_detail' contractor.pk %}" data-remote="false" data-toggle="modal" data-target="#myModal" class="btn btn-lg btn-default" > <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Szczegóły kontrahenta </a>
+        {% endif %}
+        <a href="{% url 'order_list' %}" class="btn btn-lg btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do zamówień </a>
+
+
+    <!-- Default bootstrap modal example -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+        </div>
+      </div>
+    </div>
+
+    </div> <!-- /container -->
+
+    </div>
+
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="index">
+
+    <div class="container theme-showcase" role="main">
+
+      <div class="page-header">
+        <h1>Dodaj dostawę zamówienia {{ order }}</h1>
+      </div>
+
+        <h2>Pozycje zamówienia</h2>
+        {% if order.has_order_items %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Rodzaj drewna</th>
+                    <th>Masa [m³]</th>
+                    <th>Cena [zł]</th>
+                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją zamówioną i dostarczoną!"></span></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for order_item in order.order_items.all %}
+                <tr {% if not order_item.is_fully_shipped %} class="bg-danger" {% else %} class="bg-success" {% endif %}>
+                    <td>{{ order_item.wood_kind }}</td>
+                    <td>{{ order_item.get_amount_display }}</td>
+                    <td>{{ order_item.get_price_display }}
+                    </td>
+                    <td>
+                        {{ order_item.get_difference_display }}
+                        {% if not order_item.is_fully_shipped %}
+                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" data-toggle="tooltip" title="Pozycja nie w pełni dostarczona!"></span>
+                        {% else %}
+                            <span class="glyphicon glyphicon-ok-sign" aria-hidden="true" data-toggle="tooltip" title="Pozycja w pełni dostarczona!"></span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+
+        {% else %}
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> To zamówienie nie ma jeszcze dodanych pozycji.
+              </div>
+            </div>
+        {% endif %}
+        <br>
+        <a href="{% url 'order_item_create' order.pk %}" class="btn btn-success" > <span class="glyphicon glyphicon-tree-conifer" aria-hidden="true" ></span> Dodaj pozycję zamówienia  </a>
+    <a href="{% url 'order_item_list' order.pk %}" class="btn btn-success">
+            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż pozycje zamówienia
+        </a>
+
+        <hr>
+
+        <h2>Dodaj dostawę</h2>
+
+    {% if order.has_order_items and not order.is_fully_shipped %}
+
+    <form method="post" action="{% url 'shipment_create' order.pk %}">
+        {% csrf_token %}
+
+        {% include 'forms/form_hidden_fields.html' with fields=form.hidden_fields %}
+        {% include 'forms/form_fields.html' with fields=form.visible_fields %}
+
+        <input class="btn btn-default"  type="submit" value="Dodaj" />
+        <a href="{% url 'order_list' %}" class="btn btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do zamówień </a>
+    </form>
+
+    {% else %}
+        <div class="panel panel-danger">
+              <div class="panel-heading">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" ></span> Nie możesz dodać dostawy ponieważ to zamówienie nie ma jeszcze dodanych pozycji, lub jest w pełni dostarczone.
+              </div>
+            </div>
+        <a href="{% url 'order_list' %}" class="btn btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do zamówień </a>
+    {% endif %}
+
+    </div> <!-- /container -->
+
+    </div>
+
+{% endblock %}

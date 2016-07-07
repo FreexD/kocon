@@ -1,0 +1,27 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="index">
+
+    <div class="container theme-showcase" role="main">
+
+      <div class="page-header">
+        <h1>Dodaj zamówienie</h1>
+      </div>
+
+    <form method="post" action="{% url 'order_create' %}">
+        {% csrf_token %}
+
+        {% include 'forms/form_fields.html' with fields=form.visible_fields %}
+
+        <input class="btn btn-default"  type="submit" value="Dodaj" />
+        <a href="{% url 'order_list' %}" class="btn btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do zamówień </a>
+    </form>
+
+    </div> <!-- /container -->
+
+    </div>
+
+{% endblock %}

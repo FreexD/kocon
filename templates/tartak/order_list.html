@@ -1,0 +1,56 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="index">
+
+    <div class="container theme-showcase" role="main">
+
+      <div class="page-header">
+        <h1>Zamówienia {% if by_month %} {{ report_date }} {% endif %}</h1>
+      </div>
+
+        <h2>Filtry</h2>
+
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="id_month">Miesiąc: </label>
+                <div class='input-group' id='month_picker'>
+                    <input id="id_month" type='text' class="form-control" value="" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <a href="/" class="btn btn-primary order-filter" style="float:right;" > <span class="glyphicon glyphicon-search" aria-hidden="true" ></span> Filtruj </a>
+            </div>
+        </form>
+
+        <br>
+
+    {{ datatable }}
+
+    <br>
+
+    {% if by_month %}
+        <a href="{% url 'report_list' year month %}" data-remote="false" data-toggle="modal" data-target="#myModal" class="btn btn-lg btn-default" > <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Raport miesięczny </a>
+    {% endif %}
+    <a href="{% url 'order_create' %}" class="btn btn-lg btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Dodaj zamówienie </a>
+
+    <!-- Default bootstrap modal example -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+        </div>
+      </div>
+    </div>
+
+    </div> <!-- /container -->
+
+    </div>
+
+{% endblock %}
