@@ -20,6 +20,7 @@ psycopg2 >= 2.6.1
 django-debug-toolbar
 bpython
 django-datatable-view
+django-extensions
 #django-analytical >= 2.0.0
 #django-admin-tools >= 0.7.2
 #django-axes >= 1.6.0

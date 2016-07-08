@@ -15,7 +15,7 @@ from django.shortcuts import get_object_or_404
 
 class Driver(models.Model):
     """Model definition for DRIVER"""
-    code = models.CharField(max_length=20, unique=True, verbose_name='Kod')
+    code = models.CharField(max_length=30, unique=True, verbose_name='Kod')
     first_name = models.CharField(max_length=50, verbose_name='Imię')
     last_name = models.CharField(max_length=50, verbose_name='Nazwisko')
 
@@ -26,22 +26,14 @@ class Driver(models.Model):
     def __str__(self):
         return self.first_name + " " + self.last_name
 
+    def __unicode__(self):
+        return self.first_name + " " + self.last_name
+
 
 class Forest_district(models.Model):
     """Model definition for FOREST DISTRICT"""
-    code = models.CharField(max_length=20, unique=True)
+    code = models.CharField(max_length=30, unique=True)
     name = models.CharField(max_length=100)
-    LONG_TERM = 'K'  # constant prices
-    AUCTION = 'E'    # variable prices
-    CONTRACT_CHOICES = (
-        (LONG_TERM, 'Long_term'),
-        (AUCTION, 'Auction'),
-    )
-    contract = models.CharField(
-        max_length=2,
-        choices=CONTRACT_CHOICES,
-        default=LONG_TERM
-    )
 
     class Meta:
         verbose_name = 'Nadleśnictwo'
@@ -50,14 +42,20 @@ class Forest_district(models.Model):
     def __str__(self):
         return self.name
 
+    def __unicode__(self):
+        return self.name
+
 
 class Wood_kind(models.Model):
     """Model definition for WOOD KIND"""
-    code = models.CharField(max_length=20, unique=True, verbose_name='Kod')
-    forest_district = models.ForeignKey('Forest_district', on_delete=models.CASCADE, related_name='wood_kinds', verbose_name='Nadleśnictwo')
+    code = models.CharField(max_length=30, unique=True, verbose_name='Kod')
+    forest_district = models.ForeignKey('Forest_district', on_delete=models.SET_NULL, related_name='wood_kinds', verbose_name='Nadleśnictwo', null=True)
     detail_price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Cena', validators=[MinValueValidator(Decimal('0.00'))])
 
     def __str__(self):
+        return self.code
+
+    def __unicode__(self):
         return self.code
 
     def get_action_buttons(self):
@@ -77,6 +75,7 @@ class Wood_kind(models.Model):
     class Meta:
         verbose_name = 'Rodzaj drewna'
         verbose_name_plural = 'Rodzaje drewna'
+
 
 class Order_item(models.Model):
     """Model definition for ORDER ITEM"""
@@ -108,9 +107,11 @@ class Order_item(models.Model):
             raise ValidationError({'amount': 'Usuniecie pozycji spowodowaloby powstanie ujemnej roznicy.'})
         return super(Order_item, self).delete(using=None, keep_parents=False)
 
-
     def __str__(self):
         return self.order.__str__() + " - " + self.wood_kind.__str__()  + " - " + self.amount.__str__()
+
+    def __unicode__(self):
+        return self.code
 
     def calculate_difference(self):
         difference = self.amount
@@ -147,7 +148,6 @@ class Order_item(models.Model):
                     'title="Order item not fully shipped!">' \
                     '</span>'
 
-
     def get_amount_display(self):
         return self.amount.__str__()
 
@@ -167,12 +167,16 @@ class Order_item(models.Model):
         verbose_name_plural = 'Pozycje zamówienia'
         unique_together = ('order', 'wood_kind')
 
+
 class Contractor(models.Model):
     """Model definition for CONTRACTOR"""
-    code = models.CharField(max_length=20, unique=True, verbose_name='Kod')
+    code = models.CharField(max_length=30, unique=True, verbose_name='Kod')
     name = models.CharField(max_length=100, verbose_name='Nazwa')
 
     def __str__(self):
+        return self.name
+
+    def __unicode__(self):
         return self.name
 
     def has_shipments(self):
@@ -182,7 +186,7 @@ class Contractor(models.Model):
         wood_kind_map = {}
         for shipment in self.shipments.all():
             if shipment.wood_kind in wood_kind_map.keys():
-               wood_kind_map[shipment.wood_kind] += shipment.amount
+                wood_kind_map[shipment.wood_kind] += shipment.amount
             else:
                 wood_kind_map[shipment.wood_kind] = shipment.amount
         return wood_kind_map
@@ -203,20 +207,20 @@ class Contractor(models.Model):
         return round(self.get_all_amount(), 2).__str__()
 
     class Meta:
-        verbose_name='Kontrahent'
-        verbose_name_plural='Kontrahenci'
+        verbose_name = 'Kontrahent'
+        verbose_name_plural = 'Kontrahenci'
 
 
 class Shipment(models.Model):
     """Model definition for SHIPMENT"""
     order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='shipments', verbose_name='Zamówienie')
-    contractor = models.ForeignKey('Contractor', on_delete=models.CASCADE, related_name='shipments', verbose_name='Kontrahent')
+    contractor = models.ForeignKey('Contractor', on_delete=models.SET_NULL, related_name='shipments', verbose_name='Kontrahent', null='True')
     wood_kind = models.ForeignKey('Wood_kind', on_delete=models.CASCADE, related_name='shipments', verbose_name='Rodzaj drewna')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Masa', validators=[MinValueValidator(Decimal('0.01'))])  # in m3
 
     class Meta:
-        verbose_name='Dostawa'
-        verbose_name_plural='Dostawy'
+        verbose_name = 'Dostawa'
+        verbose_name_plural = 'Dostawy'
 
     def clean(self):
         if self.wood_kind not in self.order.get_wood_kinds():
@@ -248,6 +252,9 @@ class Shipment(models.Model):
     def __str__(self):
         return self.order.__str__() + " - " + self.wood_kind.__str__() + " - " + self.amount.__str__()
 
+    def __unicode__(self):
+        return self.code
+
     def get_amount_display(self):
         return self.amount.__str__()
 
@@ -270,9 +277,9 @@ class Shipment(models.Model):
 
 class Order(models.Model):
     """Model definition for ORDER"""
-    code = models.CharField(max_length=20, unique=True, verbose_name='WZ')  # WZ
+    code = models.CharField(max_length=30, unique=True, verbose_name='WZ')  # WZ
     forest_district = models.ForeignKey('Forest_district', on_delete=models.CASCADE, related_name='orders', verbose_name='Nadleśnictwo')
-    driver = models.ForeignKey('Driver', on_delete=models.CASCADE, related_name='orders', verbose_name='Kierowca')
+    driver = models.ForeignKey('Driver', on_delete=models.SET_NULL, related_name='orders', verbose_name='Kierowca', null=True)
     date = models.DateField(verbose_name='Data')
     pieces = models.IntegerField(default=0, verbose_name='Liczba sztuk', validators=[MinValueValidator(0)])
 
@@ -281,6 +288,9 @@ class Order(models.Model):
         verbose_name_plural = 'Zamówienia'
 
     def __str__(self):
+        return self.code
+
+    def __unicode__(self):
         return self.code
 
     def get_differences(self):
@@ -299,8 +309,8 @@ class Order(models.Model):
         return True
 
     def get_action_buttons(self):
-        buttons ='<a href="'\
-               +reverse('order_detail', kwargs={'pk': self.pk})+\
+        buttons = '<a href="'\
+               + reverse('order_detail', kwargs={'pk': self.pk}) + \
                '" data-remote="false" data-toggle="modal" data-target="#myModal" class="btn btn-sm btn-primary">' \
                '<span class="glyphicon glyphicon-info-sign" aria-hidden="true">' \
                '</span>' \
@@ -319,7 +329,6 @@ class Order(models.Model):
                     'title="Zamówienie nie w pełni dostarczone!">' \
                     '</span>'
         return buttons
-
 
     def get_absolute_url(self):
         return reverse('order_list')
