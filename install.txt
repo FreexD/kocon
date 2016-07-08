@@ -1,0 +1,7 @@
+cd ..
+cd venv\Scripts
+activate
+cd ..
+cd ..
+cd kocon
+python manage.py runserver
