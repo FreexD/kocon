@@ -19,7 +19,7 @@
                     <th>Sortyment</th>
                     <th>Masa [m³]</th>
                     <th>Cena [zł]</th>
-                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją zamówioną i dostarczoną!"></span></th>
+                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją dostawy i dostawą!"></span></th>
                 </tr>
             </thead>
             <tbody>
@@ -45,7 +45,7 @@
         {% else %}
             <div class="panel panel-info">
               <div class="panel-heading">
-                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> To zamówienie nie ma jeszcze dodanych pozycji.
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Ten kwit wywozowy nie ma jeszcze dodanych pozycji.
               </div>
             </div>
         {% endif %}
@@ -65,7 +65,7 @@
 
         <a href="{% url 'shipment_create' order.pk %}" class="btn btn-lg btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj dostawę </a>
         <a href="javascript:history.go(0)" class="btn btn-lg btn-info" > <span class="glyphicon glyphicon-refresh" aria-hidden="true" ></span> Odśwież </a>
-        <a href="{% url 'order_list' %}" class="btn btn-lg btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do zamówień </a>
+        <a href="{% url 'order_list' %}" class="btn btn-lg btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do kwitów wywozowych </a>
 
     <!-- Default bootstrap modal example -->
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

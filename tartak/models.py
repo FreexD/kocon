@@ -79,7 +79,7 @@ class Wood_kind(models.Model):
 
 class Order_item(models.Model):
     """Model definition for ORDER ITEM"""
-    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='order_items', verbose_name='Zamówienie')
+    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='order_items', verbose_name='Kwit wywozowy')
     wood_kind = models.ForeignKey('Wood_kind', on_delete=models.CASCADE, related_name='order_items', verbose_name='Sortyment')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Masa', validators=[MinValueValidator(Decimal('0.01'))])  # in m3
     detail_price = models.DecimalField(default=0, max_digits=12, decimal_places=2, verbose_name='Cena detaliczna', validators=[MinValueValidator(Decimal('0.00'))])
@@ -213,7 +213,7 @@ class Contractor(models.Model):
 
 class Shipment(models.Model):
     """Model definition for SHIPMENT"""
-    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='shipments', verbose_name='Zamówienie')
+    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='shipments', verbose_name='Kwit wywozowy')
     contractor = models.ForeignKey('Contractor', on_delete=models.CASCADE, related_name='shipments', verbose_name='Kontrahent')
     wood_kind = models.ForeignKey('Wood_kind', on_delete=models.CASCADE, related_name='shipments', verbose_name='Sortyment')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Masa', validators=[MinValueValidator(Decimal('0.01'))])  # in m3
@@ -224,7 +224,7 @@ class Shipment(models.Model):
 
     def clean(self):
         if self.wood_kind not in self.order.get_wood_kinds():
-            raise ValidationError({'wood_kind': 'Prosze wybrać sortyment będący w zamówieniu.'})
+            raise ValidationError({'wood_kind': 'Prosze wybrać sortyment będący w pozycjach dostawy kwitu wywozowego.'})
 
         max_amount = self.order.get_differences()[self.wood_kind]
         if self.amount > max_amount:
@@ -284,8 +284,8 @@ class Order(models.Model):
     pieces = models.IntegerField(default=0, verbose_name='Liczba sztuk', validators=[MinValueValidator(0)])
 
     class Meta:
-        verbose_name = 'Zamówienie'
-        verbose_name_plural = 'Zamówienia'
+        verbose_name = 'Kwit wywozowy'
+        verbose_name_plural = 'Kwity wywozowe'
 
     def __str__(self):
         return self.code
@@ -326,7 +326,7 @@ class Order(models.Model):
                     'class="glyphicon glyphicon-alert" style="float:right" ' \
                     'aria-hidden="true" ' \
                     'data-toggle="tooltip" ' \
-                    'title="Zamówienie nie w pełni dostarczone!">' \
+                    'title="Kwit wywozowy nie w pełni dostarczony!">' \
                     '</span>'
         return buttons
 

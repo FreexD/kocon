@@ -3,7 +3,7 @@
     <h4 class="modal-title" id="myModalLabel">Szczegóły dostawy</h4>
 </div>
 <div class="modal-body">
-    <h1>Zamówienie {{ order }}</h1>
+    <h1>Kwit wywozowy nr {{ order }}</h1>
     <table class="table">
         <tbody>
             <tr>
@@ -40,7 +40,7 @@
                     <th>Sortyment</th>
                     <th>Masa [m³]</th>
                     <th>Cena [zł]</th>
-                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją zamówioną i dostarczoną."></span></th>
+                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją dostawy i dostawą."></span></th>
                 </tr>
             </thead>
             <tbody>
@@ -64,7 +64,7 @@
         {% else %}
             <div class="panel panel-info">
               <div class="panel-heading">
-                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> To zamówienie nie ma jeszcze dodanych pozycji.
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Ten kwit wywozowy nie ma jeszcze dodanych pozycji.
               </div>
             </div>
         {% endif %}
@@ -97,7 +97,7 @@
         {% else %}
             <div class="panel panel-info">
               <div class="panel-heading">
-                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> To zamówienie nie ma jeszcze dodanych dostaw.
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Ten kwit wywozowy nie ma jeszcze dodanych dostaw.
               </div>
             </div>
         {% endif %}
