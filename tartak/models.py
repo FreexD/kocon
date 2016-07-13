@@ -86,7 +86,8 @@ class Order_item(models.Model):
 
     def clean(self):
         if self.wood_kind not in self.order.forest_district.wood_kinds.all():
-            raise ValidationError({'wood_kind':'Prosze wybrać sortyment oferowany przez {fd}.'.format(fd=self.order.forest_district)})
+            raise ValidationError({'wood_kind':'Prosze wybrać sortyment oferowany przez {fd} (kod {fdk}).'
+                                  .format(fd=self.order.forest_district, fdk=self.order.forest_district.code)})
 
         if self.calculate_difference() < 0:
             raise ValidationError({'amount': 'Prosze wprowadzić masę nie powodującą powstania ujemnej różnicy.'})
