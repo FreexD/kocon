@@ -111,7 +111,7 @@ class Order_item(models.Model):
         return self.order.__str__() + " - " + self.wood_kind.__str__()  + " - " + self.amount.__str__()
 
     def __unicode__(self):
-        return self.code
+        return self.order.__unicode__() + " - " + self.wood_kind.__unicode__() + " - " + self.amount.__str__()
 
     def calculate_difference(self):
         difference = self.amount
@@ -253,7 +253,7 @@ class Shipment(models.Model):
         return self.order.__str__() + " - " + self.wood_kind.__str__() + " - " + self.amount.__str__()
 
     def __unicode__(self):
-        return self.code
+        return self.order.__unicode__() + " - " + self.wood_kind.__unicode__() + " - " + self.amount.__str__()
 
     def get_amount_display(self):
         return self.amount.__str__()

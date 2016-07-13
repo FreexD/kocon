@@ -8,7 +8,7 @@
     <div class="container theme-showcase" role="main">
 
       <div class="page-header">
-        <h1>Dostawy {{ order }}</h1>
+        <h1>Dodaj wszystkie dostawy kwitu wywozowego nr {{ order }}</h1>
       </div>
 
         <h2>Pozycje dostawy</h2>
@@ -51,31 +51,36 @@
         {% endif %}
         <br>
         <a href="{% url 'order_item_create' order.pk %}" class="btn btn-success" > <span class="glyphicon glyphicon-tree-conifer" aria-hidden="true" ></span> Dodaj pozycję dostawy  </a>
-        <a href="{% url 'order_item_list' order.pk %}" class="btn btn-success">
+    <a href="{% url 'order_item_list' order.pk %}" class="btn btn-success">
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż pozycje dostawy
         </a>
 
         <hr>
 
-        <h2>Dostawy</h2>
+        <h2>Dodaj dostawy</h2>
 
-    {{ datatable }}
+    {% if order.has_order_items and not order.is_fully_shipped %}
 
-        <br>
+    <p>Dodaj wszystkie dostawy kwitu wywozowego nr {{ order }} do wybranego kontrahenta.</p>
 
-        <a href="{% url 'shipment_create' order.pk %}" class="btn btn-lg btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj dostawę </a>
-        <a href="{% url 'shipment_create_all' order.pk %}" class="btn btn-lg btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj wszystkie dostawy </a>
-        <a href="javascript:history.go(0)" class="btn btn-lg btn-info" > <span class="glyphicon glyphicon-refresh" aria-hidden="true" ></span> Odśwież </a>
-        <a href="{% url 'order_list' %}" class="btn btn-lg btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do kwitów wywozowych </a>
+    <form method="post" action="{% url 'shipment_create_all' order.pk %}">
+        {% csrf_token %}
 
-    <!-- Default bootstrap modal example -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        {% include 'forms/form_hidden_fields.html' with fields=form.hidden_fields %}
+        {% include 'forms/form_fields.html' with fields=form.visible_fields %}
 
-        </div>
-      </div>
-    </div>
+        <input class="btn btn-default"  type="submit" value="Dodaj wszystko" />
+        <a href="{% url 'order_list' %}" class="btn btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do kwitów wywozowych </a>
+    </form>
+
+    {% else %}
+        <div class="panel panel-danger">
+              <div class="panel-heading">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" ></span> Nie możesz dodać dostawy ponieważ ten kwit wywozowy nie ma jeszcze dodanych pozycji, lub jest w pełni dostarczone.
+              </div>
+            </div>
+        <a href="{% url 'order_list' %}" class="btn btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do kwitów wywozowych </a>
+    {% endif %}
 
     </div> <!-- /container -->
 

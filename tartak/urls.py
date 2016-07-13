@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/order_item/delete/$', views.OrderItemDeleteView.as_view(), name='order_item_delete'),
     url(r'^(?P<pk>\d+)/shipment/list$', views.ShipmentListView.as_view(), name='shipment_list'),
     url(r'^(?P<pk>\d+)/shipment/create$', views.ShipmentCreateView.as_view(), name='shipment_create'),
+    url(r'^(?P<pk>\d+)/shipment/create_all$', views.AllShipmentCreateView.as_view(), name='shipment_create_all'),
     url(r'^(?P<pk>\d+)/shipment/delete/$', views.ShipmentDeleteView.as_view(), name='shipment_delete'),
     url(r'^shipment/$', views.AllShipmentListView.as_view(), name='shipment_list_bi'),
     url(r'^(?P<pk>\d+)/shipment/$', views.AllShipmentListView.as_view(), name='shipment_list_bi'),

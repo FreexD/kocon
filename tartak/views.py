@@ -7,9 +7,10 @@ from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 import django.views.generic as views
+from django.views.generic.edit import FormView
 
 from lumberjack.settings import PLAC_ID
-from tartak.forms import OrderItemForm, ShipmentForm, ContractorForm
+from tartak.forms import OrderItemForm, ShipmentForm, ContractorForm, AllShipmentForm
 from tartak.models import Order, Wood_kind, Order_item, Shipment, Contractor
 
 
@@ -303,6 +304,29 @@ class ReportView(views.ListView):
         context['plac_aggregate_shipments'] = plac_aggregate_shipments
 
         return context
+
+
+class AllShipmentCreateView(FormView):
+    template_name = 'tartak/shipment_all_create.html'
+    form_class = AllShipmentForm
+
+    def get_context_data(self, **kwargs):
+        context = super(AllShipmentCreateView, self).get_context_data(**kwargs)
+        context['order'] = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        return context
+
+    def get_initial(self):
+        initial = super(AllShipmentCreateView, self).get_initial()
+        initial['order'] = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        return initial
+
+    def form_valid(self, form):
+        form.order = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        form.create_all_shipments_for_order()
+        return super(AllShipmentCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return '/' + self.kwargs.get('pk').__str__() + '/shipment/list'
 
 
 class BackupView(views.TemplateView):
