@@ -22,8 +22,11 @@ Przedstawiony opis konfiguracji zakłada pracę na systemie Windows. W sytemie L
 Tworzymy baze danych:
 
 > createdb kocon
+
 > createuser -P ( ustawiamy postgres postgres )
+
 > psql
+
 > GRANT ALL PRIVILEGES ON DATABASE kocon TO postgres;
 
 Importujemy projekt z gita:
