@@ -49,7 +49,7 @@ class Forest_district(models.Model):
 class Wood_kind(models.Model):
     """Model definition for WOOD KIND"""
     code = models.CharField(max_length=30, unique=True, verbose_name='Kod')
-    forest_district = models.ForeignKey('Forest_district', on_delete=models.SET_NULL, related_name='wood_kinds', verbose_name='Nadleśnictwo', null=True)
+    forest_district = models.ForeignKey('Forest_district', on_delete=models.CASCADE, related_name='wood_kinds', verbose_name='Nadleśnictwo')
     detail_price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Cena', validators=[MinValueValidator(Decimal('0.00'))])
 
     def __str__(self):
@@ -163,8 +163,8 @@ class Order_item(models.Model):
                '</a>'
 
     class Meta:
-        verbose_name = 'Pozycja zamówienia'
-        verbose_name_plural = 'Pozycje zamówienia'
+        verbose_name = 'Pozycja dostawy'
+        verbose_name_plural = 'Pozycje dostawy'
         unique_together = ('order', 'wood_kind')
 
 
@@ -214,7 +214,7 @@ class Contractor(models.Model):
 class Shipment(models.Model):
     """Model definition for SHIPMENT"""
     order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='shipments', verbose_name='Zamówienie')
-    contractor = models.ForeignKey('Contractor', on_delete=models.SET_NULL, related_name='shipments', verbose_name='Kontrahent', null='True')
+    contractor = models.ForeignKey('Contractor', on_delete=models.CASCADE, related_name='shipments', verbose_name='Kontrahent')
     wood_kind = models.ForeignKey('Wood_kind', on_delete=models.CASCADE, related_name='shipments', verbose_name='Rodzaj drewna')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Masa', validators=[MinValueValidator(Decimal('0.01'))])  # in m3
 
@@ -279,7 +279,7 @@ class Order(models.Model):
     """Model definition for ORDER"""
     code = models.CharField(max_length=30, unique=True, verbose_name='WZ')  # WZ
     forest_district = models.ForeignKey('Forest_district', on_delete=models.CASCADE, related_name='orders', verbose_name='Nadleśnictwo')
-    driver = models.ForeignKey('Driver', on_delete=models.SET_NULL, related_name='orders', verbose_name='Kierowca', null=True)
+    driver = models.ForeignKey('Driver', on_delete=models.CASCADE, related_name='orders', verbose_name='Kierowca')
     date = models.DateField(verbose_name='Data')
     pieces = models.IntegerField(default=0, verbose_name='Liczba sztuk', validators=[MinValueValidator(0)])
 

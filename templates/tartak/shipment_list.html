@@ -11,7 +11,7 @@
         <h1>Dostawy {{ order }}</h1>
       </div>
 
-        <h2>Pozycje zamówienia</h2>
+        <h2>Pozycje dostawy</h2>
         {% if order.has_order_items %}
         <table class="table">
             <thead>
@@ -50,9 +50,9 @@
             </div>
         {% endif %}
         <br>
-        <a href="{% url 'order_item_create' order.pk %}" class="btn btn-success" > <span class="glyphicon glyphicon-tree-conifer" aria-hidden="true" ></span> Dodaj pozycję zamówienia  </a>
+        <a href="{% url 'order_item_create' order.pk %}" class="btn btn-success" > <span class="glyphicon glyphicon-tree-conifer" aria-hidden="true" ></span> Dodaj pozycję dostawy  </a>
         <a href="{% url 'order_item_list' order.pk %}" class="btn btn-success">
-            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż pozycje zamówienia
+            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż pozycje dostawy
         </a>
 
         <hr>

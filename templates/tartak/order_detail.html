@@ -1,6 +1,6 @@
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-    <h4 class="modal-title" id="myModalLabel">Szczegóły zamówienia</h4>
+    <h4 class="modal-title" id="myModalLabel">Szczegóły dostawy</h4>
 </div>
 <div class="modal-body">
     <h1>Zamówienie {{ order }}</h1>
@@ -32,7 +32,7 @@
             </tr>
         </tbody>
     </table>
-    <h2>Pozycje zamówienia</h2>
+    <h2>Pozycje dostawy</h2>
         {% if order.has_order_items %}
           <table class="table">
             <thead>
@@ -69,9 +69,9 @@
             </div>
         {% endif %}
         <br>
-        <a href="{% url 'order_item_create' order.pk %}" class="btn btn-success" > <span class="glyphicon glyphicon-tree-conifer" aria-hidden="true" ></span> Dodaj pozycję zamówienia  </a>
+        <a href="{% url 'order_item_create' order.pk %}" class="btn btn-success" > <span class="glyphicon glyphicon-tree-conifer" aria-hidden="true" ></span> Dodaj pozycję dostawy  </a>
         <a href="{% url 'order_item_list' order.pk %}" class="btn btn-success">
-            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż pozycje zamówienia
+            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż pozycje dostawy
         </a>
     <hr/>
     <h2>Dostawy</h2>
