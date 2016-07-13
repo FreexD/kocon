@@ -73,20 +73,20 @@ class Wood_kind(models.Model):
         return not self.order_items.all().exists()
 
     class Meta:
-        verbose_name = 'Rodzaj drewna'
-        verbose_name_plural = 'Rodzaje drewna'
+        verbose_name = 'Sortyment'
+        verbose_name_plural = 'Sortymenty'
 
 
 class Order_item(models.Model):
     """Model definition for ORDER ITEM"""
     order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='order_items', verbose_name='Zamówienie')
-    wood_kind = models.ForeignKey('Wood_kind', on_delete=models.CASCADE, related_name='order_items', verbose_name='Rodzaj drewna')
+    wood_kind = models.ForeignKey('Wood_kind', on_delete=models.CASCADE, related_name='order_items', verbose_name='Sortyment')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Masa', validators=[MinValueValidator(Decimal('0.01'))])  # in m3
     detail_price = models.DecimalField(default=0, max_digits=12, decimal_places=2, verbose_name='Cena detaliczna', validators=[MinValueValidator(Decimal('0.00'))])
 
     def clean(self):
         if self.wood_kind not in self.order.forest_district.wood_kinds.all():
-            raise ValidationError({'wood_kind':'Prosze wybrać rodzaj drewna oferowany przez {fd}.'.format(fd=self.order.forest_district)})
+            raise ValidationError({'wood_kind':'Prosze wybrać sortyment oferowany przez {fd}.'.format(fd=self.order.forest_district)})
 
         if self.calculate_difference() < 0:
             raise ValidationError({'amount': 'Prosze wprowadzić masę nie powodującą powstania ujemnej różnicy.'})
@@ -215,7 +215,7 @@ class Shipment(models.Model):
     """Model definition for SHIPMENT"""
     order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='shipments', verbose_name='Zamówienie')
     contractor = models.ForeignKey('Contractor', on_delete=models.CASCADE, related_name='shipments', verbose_name='Kontrahent')
-    wood_kind = models.ForeignKey('Wood_kind', on_delete=models.CASCADE, related_name='shipments', verbose_name='Rodzaj drewna')
+    wood_kind = models.ForeignKey('Wood_kind', on_delete=models.CASCADE, related_name='shipments', verbose_name='Sortyment')
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Masa', validators=[MinValueValidator(Decimal('0.01'))])  # in m3
 
     class Meta:
@@ -224,14 +224,14 @@ class Shipment(models.Model):
 
     def clean(self):
         if self.wood_kind not in self.order.get_wood_kinds():
-            raise ValidationError({'wood_kind': 'Prosze wybrać rodzaj drewna będący w zamówieniu.'})
+            raise ValidationError({'wood_kind': 'Prosze wybrać sortyment będący w zamówieniu.'})
 
         max_amount = self.order.get_differences()[self.wood_kind]
         if self.amount > max_amount:
             if max_amount == 0:
-                raise ValidationError({'wood_kind': 'Prosze wybrać rodzaj drewna nie będący już w pełni dostarczony.'})
+                raise ValidationError({'wood_kind': 'Prosze wybrać sortyment nie będący już w pełni dostarczony.'})
             else:
-                raise ValidationError({'amount': 'Prosze wybrać mniejszą masę. Tego rodzaju drewna zostało jeszcze {amount} m³.'.format(amount=max_amount)})
+                raise ValidationError({'amount': 'Prosze wybrać mniejszą masę. Tego sortymentu zostało jeszcze {amount} m³.'.format(amount=max_amount)})
 
         # amount_delta = get_object_or_404(Shipment, pk=self.pk).amount - self.amount
         # if not self.calculate_difference() + amount_delta >= 0:

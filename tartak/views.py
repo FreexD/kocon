@@ -78,7 +78,7 @@ class PriceListView(XEditableDatatableView):
         'structure_template': 'datatableview/editable_structure.html',
         'columns': [
             ('Nadleśnictwo', 'forest_district'),
-            ('Rodzaj drewna', 'code'),
+            ('Sortyment', 'code'),
             ('Cena [zł]', 'detail_price', helpers.make_xeditable),
             ('Akcja', 'get_action_buttons')
         ],
@@ -107,7 +107,7 @@ class OrderItemListView(XEditableDatatableView):
     datatable_options = {
         'structure_template': 'datatableview/editable_structure.html',
         'columns': [
-            ('Rodzaj drewna', 'wood_kind'),
+            ('Sortyment', 'wood_kind'),
             ('Masa [m³]', 'amount', helpers.make_xeditable),
             ('Cena [zł]', 'get_price_display'),
             ('Różnica [zł]', 'get_difference_display_for_datatables'),
@@ -170,7 +170,7 @@ class ShipmentListView(XEditableDatatableView):
         'structure_template': 'datatableview/editable_structure.html',
         'columns': [
             ('Kontrahent', 'contractor'),
-            ('Rodzaj drewna', 'wood_kind'),
+            ('Sortyment', 'wood_kind'),
             ('Masa [m³]', 'amount', helpers.make_xeditable),
             ('Akcja', 'get_action_buttons')
         ],
@@ -226,7 +226,7 @@ class AllShipmentListView(DatatableView):
         'columns': [
             ('Kontrahent', 'contractor'),
             ('WZ', 'order'),
-            ('Rodzaj drewna', 'wood_kind'),
+            ('Sortyment', 'wood_kind'),
             ('Masa [m³]', 'amount'),
         ],
         'search_fields': [
