@@ -151,10 +151,12 @@ class OrderItemCreateView(views.CreateView):
             form.add_error('wood_kind', "Item with this code already exists in this order.")
             return super(OrderItemCreateView, self).form_invalid(form)
 
+
 class WoodKindPriceRetrieveView(views.DetailView):
     model = Wood_kind
     context_object_name = 'wood_kind'
     template_name = 'tartak/wood_kind_price.html'
+
 
 class OrderItemDeleteView(views.DeleteView):
     model = Order_item
@@ -163,6 +165,7 @@ class OrderItemDeleteView(views.DeleteView):
 
     def get_success_url(self):
         return '/' + self.object.order.pk.__str__() + '/order_item/list'
+
 
 class ShipmentListView(XEditableDatatableView):
     model = Shipment
@@ -211,7 +214,7 @@ class ShipmentCreateView(views.CreateView):
 
 
 class ShipmentDeleteView(views.DeleteView):
-    model=Shipment
+    model = Shipment
     context_object_name = 'shipment'
     template_name = 'tartak/shipment_confirm_delete.html'
 
