@@ -40,7 +40,7 @@
                     <th>Sortyment</th>
                     <th>Masa [m³]</th>
                     <th>Cena [zł]</th>
-                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją dostawy i dostawą."></span></th>
+                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją dostawy i dostawą pośrednią."></span></th>
                 </tr>
             </thead>
             <tbody>
@@ -74,7 +74,7 @@
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż pozycje dostawy
         </a>
     <hr/>
-    <h2>Dostawy</h2>
+    <h2>Dostawy pośrednie</h2>
         {% if order.has_shipments %}
         <table class="table">
             <thead>
@@ -97,16 +97,16 @@
         {% else %}
             <div class="panel panel-info">
               <div class="panel-heading">
-                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Ten kwit wywozowy nie ma jeszcze dodanych dostaw.
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Ten kwit wywozowy nie ma jeszcze dodanych dostaw pośrednich.
               </div>
             </div>
         {% endif %}
 
-    <a href="{% url 'shipment_create' order.pk %}" class="btn btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj dostawę </a>
-    <a href="{% url 'shipment_create_all' order.pk %}" class="btn btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj wszystkie dostawy </a>
+    <a href="{% url 'shipment_create' order.pk %}" class="btn btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj dostawę pośrednią </a>
+    <a href="{% url 'shipment_create_all' order.pk %}" class="btn btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj wszystkie dostawy pośrednie </a>
 
     <a href="{% url 'shipment_list' order.pk %}" class="btn btn-default">
-            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż dostawy
+            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż dostawy pośrednie
         </a>
 </div>
 <div class="modal-footer">

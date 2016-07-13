@@ -219,8 +219,8 @@ class Shipment(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Masa', validators=[MinValueValidator(Decimal('0.01'))])  # in m3
 
     class Meta:
-        verbose_name = 'Dostawa'
-        verbose_name_plural = 'Dostawy'
+        verbose_name = 'Dostawa pośrednia'
+        verbose_name_plural = 'Dostawy pośrednie'
 
     def clean(self):
         if self.wood_kind not in self.order.get_wood_kinds():

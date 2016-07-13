@@ -8,7 +8,7 @@
     <div class="container theme-showcase" role="main">
 
       <div class="page-header">
-        <h1>Dodaj dostawę kwitu wywozowego nr {{ order }}</h1>
+        <h1>Dodaj dostawę pośrednią kwitu wywozowego nr {{ order }}</h1>
       </div>
 
         <h2>Pozycje dostawy</h2>
@@ -19,7 +19,7 @@
                     <th>Sortyment</th>
                     <th>Masa [m³]</th>
                     <th>Cena [zł]</th>
-                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją dostawy i dostawą!"></span></th>
+                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją dostawy i dostawą pośrednią!"></span></th>
                 </tr>
             </thead>
             <tbody>
@@ -57,7 +57,7 @@
 
         <hr>
 
-        <h2>Dodaj dostawę</h2>
+        <h2>Dodaj dostawę pośrednią</h2>
 
     {% if order.has_order_items and not order.is_fully_shipped %}
 
