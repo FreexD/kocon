@@ -1,0 +1,35 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="index">
+
+    <div class="container theme-showcase" role="main">
+
+      <div class="page-header">
+        <h1>Raporty</h1>
+      </div>
+
+        <div class="panel panel-primary">
+        <div class="panel-body">
+
+        <div class="media">
+          <div class="media-left">
+            <a href="{% url 'driver_report' %}">
+              <img class="media-object" src="{% static 'images/info-icon.png' %}" alt="Kierowcy">
+            </a>
+          </div>
+          <div class="media-body">
+            <h4 class="media-heading">Kierowcy</h4>
+            Dla wybranego kierowcy oraz dat od, do pokazuje zestawienie dostarczonych przez niego w tym czasie dostaw pośrednich oraz końcowych.
+          </div>
+        </div>
+    </div>
+</div></a>
+
+    </div> <!-- /container -->
+
+    </div>
+
+{% endblock %}

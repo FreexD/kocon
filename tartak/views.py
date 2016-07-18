@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import json
+from decimal import Decimal
+
 from datatableview import helpers
 from datatableview.views import DatatableView, XEditableDatatableView
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 import django.views.generic as views
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, FormMixin
 
 from lumberjack.settings import PLAC_ID
 from tartak.forms import OrderItemForm, ShipmentForm, ContractorForm, AllShipmentForm, FinalShipmentForm, \
-    AllFinalShipmentForm
-from tartak.models import Order, Wood_kind, Order_item, Shipment, Contractor, Final_shipment
+    AllFinalShipmentForm, DriverReportForm
+from tartak.models import Order, Wood_kind, Order_item, Shipment, Contractor, Final_shipment, Driver
 
 
 class OrderListView(DatatableView):
@@ -414,47 +416,64 @@ class AllFinalShipmentCreateView(FormView):
     def get_success_url(self):
         return '/' + self.kwargs.get('pk').__str__() + '/final_shipment/list'
 
-# class AllShipmentListView(DatatableView):
-#     model = Shipment
-#     template_name = 'tartak/shipment_contractor_list.html'
-#     datatable_options = {
-#         'columns': [
-#             ('Kontrahent', 'contractor'),
-#             ('WZ', 'order'),
-#             ('Sortyment', 'wood_kind'),
-#             ('Masa [m³]', 'amount'),
-#         ],
-#         'search_fields': [
-#             'contractor__name',
-#             'order__code',
-#             'wood_kind__code',
-#             'amount',
-#         ]
-#     }
-#
-#     def get_queryset(self):
-#         queryset = Shipment.objects.all()
-#         if 'pk' in self.kwargs:
-#             queryset = queryset.filter(contractor__pk=self.kwargs['pk'])
-#         return queryset
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(AllShipmentListView, self).get_context_data(**kwargs)
-#         context['contractor_form'] = ContractorForm()
-#         if 'pk' in self.kwargs:
-#             context['by_contractor'] = True
-#             context['contractor'] = get_object_or_404(Contractor, pk=self.kwargs.get('pk'))
-#         return context
-
 
 class BackupView(views.TemplateView):
     template_name = 'tartak/backup_instructions.html'
 
 
+class ReportListView(views.TemplateView):
+    template_name = 'tartak/reports.html'
 
+
+class DriverReportView(views.TemplateView):
+    template_name = 'tartak/driver_report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DriverReportView, self).get_context_data(**kwargs)
+        print self.request.GET
+        if self.request.GET:
+            driver_form = DriverReportForm(self.request.GET)
+        else:
+            driver_form = DriverReportForm()
+        context['form'] = driver_form
+
+        driver = self.request.GET.get('driver')
+        date_from = self.request.GET.get('date_from')
+        date_to = self.request.GET.get('date_to')
+
+        if driver or date_from or date_to:
+            if driver_form.is_valid():
+
+                context['driver'] = Driver.objects.get(pk=driver)
+                context['date_from'] = date_from
+                context['date_to'] = date_to
+
+                context['form_valid'] = True
+                order_list, final_shipment_list = driver_form.get_context_for_driver()
+                # final shipments
+                final_shipments_amount = Decimal(0.0)
+                for final_shipment in final_shipment_list:
+                    final_shipments_amount += final_shipment.amount
+                context['final_shipment_list'] = final_shipment_list
+                context['final_shipments_amount'] = final_shipments_amount
+                # shipments
+                shipment_list = []
+                shipments_amount = Decimal(0.0)
+                for order in order_list:
+                    for shipment in order.shipments.all():
+                        shipment_list.append(shipment)
+                        shipments_amount += shipment.amount
+                context['shipment_list'] = shipment_list
+                context['shipments_amount'] = shipments_amount
+                # whole sum
+                context['whole_amount'] = final_shipments_amount + shipments_amount
+
+        return context
 
 # BACKUP AND RESTORE DATA
 #
 # export: pg_dump <dbname> -t <tablename> -f out.sql
 #
 # import: psql <dbname> -f out.sql
+
+

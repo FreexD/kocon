@@ -26,11 +26,12 @@ $(function(){
 
     });
 
-    $('#id_date').datepicker({
+    $('#id_date, #id_date_from, #id_date_to').datepicker({
         format: "yyyy-mm-dd",
         startView: "decade",
         minViewMode: "days",
-        language: 'pl'
+        language: 'pl',
+        autoclose: true
     });
 
     $('#id_month').datepicker({

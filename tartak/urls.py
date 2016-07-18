@@ -28,4 +28,8 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/final_shipment/create$', views.FinalShipmentCreateView.as_view(), name='final_shipment_create'),
     url(r'^(?P<pk>\d+)/final_shipment/create_all$', views.AllFinalShipmentCreateView.as_view(), name='final_shipment_create_all'),
     url(r'^(?P<pk>\d+)/final_shipment/delete/$', views.FinalShipmentDeleteView.as_view(), name='final_shipment_delete'),
+    # reports
+    url(r'^reports/$', views.ReportListView.as_view(), name='reports'),
+    url(r'^reports/drivers$', views.DriverReportView.as_view(), name='driver_report'),
+
 ]

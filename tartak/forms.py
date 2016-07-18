@@ -56,7 +56,7 @@ class AllFinalShipmentForm(forms.Form):
     contractor = forms.ModelChoiceField(queryset=Contractor.objects.all(), label='Kontrahent')
     date = forms.DateField(label='Data')
     driver = forms.ModelChoiceField(queryset=Driver.objects.all(), label='Kierowca')
-    wood_type = forms.CharField(max_length=100, label='Rodzaj drewna (po manipulacji)', widget=forms.TextInput(attrs={'placeholder':'Brak manipulacji'}))
+    wood_type = forms.CharField(max_length=100, label='Rodzaj drewna (po manipulacji)', initial='Brak manipulacji')
 
     def create_all_final_shipments_for_order(self):
         for wood_kind, amount in self.cleaned_data['order'].get_final_differences().items():
@@ -74,3 +74,14 @@ class DriverReportForm(forms.Form):
     date_from = forms.DateField(label='Od')
     date_to = forms.DateField(label='Do')
     driver = forms.ModelChoiceField(queryset=Driver.objects.all(), label='Kierowca')
+
+    def get_context_for_driver(self):
+        """:returns order_list, final_shipment_list"""
+        date_from = self.cleaned_data['date_from']
+        date_to = self.cleaned_data['date_to']
+        driver = self.cleaned_data['driver']
+
+        order_list = Order.objects.filter(driver=driver, date__gte=date_from, date__lte=date_to)
+        final_shipment_list = Final_shipment.objects.filter(driver=driver, date__gte=date_from, date__lte=date_to)
+
+        return order_list, final_shipment_list
