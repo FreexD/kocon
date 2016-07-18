@@ -38,7 +38,8 @@ $(function(){
         format: "yyyy/mm",
         startView: "months",
         minViewMode: "months",
-        language: 'pl'
+        language: 'pl',
+        autoclose: true
     }).change(function(event) {
         address = "/" + $(this).val() + "/";
         $(".order-filter").attr("href", address);

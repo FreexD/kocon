@@ -27,17 +27,17 @@
                 <td>Do</td>
                 <td>{{ date_to }}</td>
             </tr>
-            <tr>
+            <tr class="bg-info">
                 <td>Dostawy pośrednie - łączna masa [m³]</td>
-                <td>{{ shipments_amount }}</td>
+                <td><b>{{ shipments_amount }}</b></td>
             </tr>
-            <tr>
+            <tr class="bg-info">
                 <td>Dostawy końcowe - łączna masa [m³]</td>
-                <td>{{ final_shipments_amount }}</td>
+                <td><b>{{ final_shipments_amount }}</b></td>
             </tr>
-            <tr>
+            <tr class="bg-success">
                 <td>Dostawy łącznie - masa [m³]</td>
-                <td>{{ whole_amount }}</td>
+                <td><b>{{ whole_amount }}</b></td>
             </tr>
         </tbody>
     </table>
@@ -47,18 +47,24 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>Numer kwitu wywozowego</th>
                     <th>Sortyment</th>
                     <th>Masa [m³]</th>
                     <th>Kontrahent</th>
+                    <th>Rodzaj drewna</th>
+                    <th>Kierowca</th>
                     <th>Data</th>
                 </tr>
             </thead>
             <tbody>
             {% for shipment in shipment_list %}
                 <tr>
+                    <td><a href="{% url 'order_detail' shipment.order.pk %}" data-remote="false" data-toggle="modal" data-target="#myModal">{{ shipment.order }}</a></td>
                     <td>{{ shipment.wood_kind }}</td>
                     <td>{{ shipment.get_amount_display }}</td>
                     <td>{{ shipment.contractor }}</td>
+                    <td>Nie dotyczy</td>
+                    <td>{{ shipment.order.driver }}</td>
                     <td>{{ shipment.order.date }}</td>
                 </tr>
             {% endfor %}
@@ -77,6 +83,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>Numer kwitu wywozowego</th>
                     <th>Sortyment</th>
                     <th>Masa [m³]</th>
                     <th>Kontrahent</th>
@@ -88,6 +95,7 @@
             <tbody>
             {% for final_shipment in final_shipment_list %}
                 <tr>
+                    <td><a href="{% url 'order_detail' final_shipment.order.pk %}" data-remote="false" data-toggle="modal" data-target="#myModal">{{ final_shipment.order }}</a></td>
                     <td>{{ final_shipment.wood_kind }}</td>
                     <td>{{ final_shipment.get_amount_display }}</td>
                     <td>{{ final_shipment.contractor }}</td>
@@ -131,6 +139,14 @@
 
     {% endif %}
 
+    <!-- Default bootstrap modal example -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+        </div>
+      </div>
+    </div>
 
 
     </div> <!-- /container -->
