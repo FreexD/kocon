@@ -10,8 +10,9 @@ import django.views.generic as views
 from django.views.generic.edit import FormView
 
 from lumberjack.settings import PLAC_ID
-from tartak.forms import OrderItemForm, ShipmentForm, ContractorForm, AllShipmentForm
-from tartak.models import Order, Wood_kind, Order_item, Shipment, Contractor
+from tartak.forms import OrderItemForm, ShipmentForm, ContractorForm, AllShipmentForm, FinalShipmentForm, \
+    AllFinalShipmentForm
+from tartak.models import Order, Wood_kind, Order_item, Shipment, Contractor, Final_shipment
 
 
 class OrderListView(DatatableView):
@@ -256,6 +257,29 @@ class AllShipmentListView(DatatableView):
         return context
 
 
+class AllShipmentCreateView(FormView):
+    template_name = 'tartak/shipment_all_create.html'
+    form_class = AllShipmentForm
+
+    def get_context_data(self, **kwargs):
+        context = super(AllShipmentCreateView, self).get_context_data(**kwargs)
+        context['order'] = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        return context
+
+    def get_initial(self):
+        initial = super(AllShipmentCreateView, self).get_initial()
+        initial['order'] = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        return initial
+
+    def form_valid(self, form):
+        form.order = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        form.create_all_shipments_for_order()
+        return super(AllShipmentCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return '/' + self.kwargs.get('pk').__str__() + '/shipment/list'
+
+
 class ContractorDetailView(views.DetailView):
     model = Contractor
     context_object_name = 'contractor'
@@ -306,31 +330,128 @@ class ReportView(views.ListView):
         return context
 
 
-class AllShipmentCreateView(FormView):
-    template_name = 'tartak/shipment_all_create.html'
-    form_class = AllShipmentForm
+class FinalShipmentListView(XEditableDatatableView):
+    model = Final_shipment
+    datatable_options = {
+        'structure_template': 'datatableview/editable_structure.html',
+        'columns': [
+            ('Kontrahent', 'contractor'),
+            ('Sortyment', 'wood_kind'),
+            ('Rodzaj drewna', 'wood_type'),
+            ('Masa [m³]', 'amount', helpers.make_xeditable),
+            ('Kierowca', 'driver'),
+            ('Data', 'date'),
+            ('Akcja', 'get_action_buttons')
+        ],
+        'search_fields': [
+            'contractor__name',
+            'wood_kind__code',
+            'wood_type',
+            'amount',
+            'driver__first_name',
+            'driver__last_name',
+            'date'
+        ]
+    }
+
+    def get_queryset(self):
+        return Final_shipment.objects.filter(order__pk=self.kwargs['pk'])
 
     def get_context_data(self, **kwargs):
-        context = super(AllShipmentCreateView, self).get_context_data(**kwargs)
+        context = super(FinalShipmentListView, self).get_context_data(**kwargs)
+        context['order'] = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        return context
+
+
+class FinalShipmentCreateView(views.CreateView):
+    model = Final_shipment
+    template_name = 'tartak/final_shipment_create.html'
+    form_class = FinalShipmentForm
+
+    def get_context_data(self, **kwargs):
+        context = super(FinalShipmentCreateView, self).get_context_data(**kwargs)
         context['order'] = get_object_or_404(Order, pk=self.kwargs.get('pk'))
         return context
 
     def get_initial(self):
-        initial = super(AllShipmentCreateView, self).get_initial()
+        initial = super(FinalShipmentCreateView, self).get_initial()
+        initial['order'] = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        return initial
+
+    def form_valid(self, form):
+        form.instance.order = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        return super(FinalShipmentCreateView, self).form_valid(form)
+
+
+class FinalShipmentDeleteView(views.DeleteView):
+    model = Final_shipment
+    context_object_name = 'final_shipment'
+    template_name = 'tartak/final_shipment_confirm_delete.html'
+
+    def get_success_url(self):
+        return '/' + self.object.order.pk.__str__() + '/final_shipment/list'
+
+
+class AllFinalShipmentCreateView(FormView):
+    template_name = 'tartak/final_shipment_all_create.html'
+    form_class = AllFinalShipmentForm
+
+    def get_context_data(self, **kwargs):
+        context = super(AllFinalShipmentCreateView, self).get_context_data(**kwargs)
+        context['order'] = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        return context
+
+    def get_initial(self):
+        initial = super(AllFinalShipmentCreateView, self).get_initial()
         initial['order'] = get_object_or_404(Order, pk=self.kwargs.get('pk'))
         return initial
 
     def form_valid(self, form):
         form.order = get_object_or_404(Order, pk=self.kwargs.get('pk'))
-        form.create_all_shipments_for_order()
-        return super(AllShipmentCreateView, self).form_valid(form)
+        form.create_all_final_shipments_for_order()
+        return super(AllFinalShipmentCreateView, self).form_valid(form)
 
     def get_success_url(self):
-        return '/' + self.kwargs.get('pk').__str__() + '/shipment/list'
+        return '/' + self.kwargs.get('pk').__str__() + '/final_shipment/list'
+
+# class AllShipmentListView(DatatableView):
+#     model = Shipment
+#     template_name = 'tartak/shipment_contractor_list.html'
+#     datatable_options = {
+#         'columns': [
+#             ('Kontrahent', 'contractor'),
+#             ('WZ', 'order'),
+#             ('Sortyment', 'wood_kind'),
+#             ('Masa [m³]', 'amount'),
+#         ],
+#         'search_fields': [
+#             'contractor__name',
+#             'order__code',
+#             'wood_kind__code',
+#             'amount',
+#         ]
+#     }
+#
+#     def get_queryset(self):
+#         queryset = Shipment.objects.all()
+#         if 'pk' in self.kwargs:
+#             queryset = queryset.filter(contractor__pk=self.kwargs['pk'])
+#         return queryset
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(AllShipmentListView, self).get_context_data(**kwargs)
+#         context['contractor_form'] = ContractorForm()
+#         if 'pk' in self.kwargs:
+#             context['by_contractor'] = True
+#             context['contractor'] = get_object_or_404(Contractor, pk=self.kwargs.get('pk'))
+#         return context
 
 
 class BackupView(views.TemplateView):
     template_name = 'tartak/backup_instructions.html'
+
+
+
 
 # BACKUP AND RESTORE DATA
 #

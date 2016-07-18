@@ -59,7 +59,7 @@
 
         <h2>Dodaj dostawę pośrednią</h2>
 
-    {% if order.has_order_items and not order.is_fully_shipped %}
+    {% if order.has_order_items and not order.is_fully_shipped_indirect %}
 
     <form method="post" action="{% url 'shipment_create' order.pk %}">
         {% csrf_token %}
@@ -74,7 +74,7 @@
     {% else %}
         <div class="panel panel-danger">
               <div class="panel-heading">
-                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" ></span> Nie możesz dodać dostawy ponieważ ten kwit wywozowy nie ma jeszcze dodanych pozycji, lub jest w pełni dostarczone.
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" ></span> Nie możesz dodać dostawy ponieważ ten kwit wywozowy nie ma jeszcze dodanych pozycji, lub jest w pełni dostarczony.
               </div>
             </div>
         <a href="{% url 'order_list' %}" class="btn btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do kwitów wywozowych </a>

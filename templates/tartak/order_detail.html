@@ -103,10 +103,51 @@
         {% endif %}
 
     <a href="{% url 'shipment_create' order.pk %}" class="btn btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj dostawę pośrednią </a>
-    <a href="{% url 'shipment_create_all' order.pk %}" class="btn btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj dostawy pośrednie w całości</a>
+    <a href="{% url 'shipment_create_all' order.pk %}" class="btn btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj dostawy pośrednie do reszty</a>
 
     <a href="{% url 'shipment_list' order.pk %}" class="btn btn-default">
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż dostawy pośrednie
+        </a>
+    <hr/>
+    <h2>Dostawy końcowe</h2>
+        {% if order.has_final_shipments %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sortyment</th>
+                    <th>Masa [m³]</th>
+                    <th>Kontrahent</th>
+                    <th>Rodzaj drewna</th>
+                    <th>Kierowca</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for final_shipment in order.final_shipments.all %}
+                <tr>
+                    <td>{{ final_shipment.wood_kind }}</td>
+                    <td>{{ final_shipment.get_amount_display }}</td>
+                    <td>{{ final_shipment.contractor }}</td>
+                    <td>{{ final_shipment.wood_type }}</td>
+                    <td>{{ final_shipment.driver }}</td>
+                    <td>{{ final_shipment.date }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+          </table>
+        {% else %}
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Ten kwit wywozowy nie ma jeszcze dodanych dostaw końcowych.
+              </div>
+            </div>
+        {% endif %}
+
+    <a href="{% url 'final_shipment_create' order.pk %}" class="btn btn-info" > <span class="glyphicon glyphicon-road" aria-hidden="true" ></span> Dodaj dostawę końcową </a>
+    <a href="{% url 'final_shipment_create_all' order.pk %}" class="btn btn-info" > <span class="glyphicon glyphicon-road" aria-hidden="true" ></span> Dodaj dostawy końcowe do reszty</a>
+
+    <a href="{% url 'final_shipment_list' order.pk %}" class="btn btn-info">
+            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż dostawy końcowe
         </a>
 </div>
 <div class="modal-footer">

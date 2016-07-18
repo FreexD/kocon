@@ -8,7 +8,7 @@
     <div class="container theme-showcase" role="main">
 
       <div class="page-header">
-        <h1>Dodaj dostawy pośrednie kwitu wywozowego nr {{ order }} do reszty</h1>
+        <h1>Dodaj dostawy końcowe kwitu wywozowego nr {{ order }} do reszty</h1>
       </div>
 
         <h2>Pozycje dostawy</h2>
@@ -54,16 +54,50 @@
     <a href="{% url 'order_item_list' order.pk %}" class="btn btn-success">
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż pozycje dostawy
         </a>
+        <hr/>
+    <h2>Dostawy pośrednie</h2>
+        {% if order.has_shipments %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sortyment</th>
+                    <th>Masa [m³]</th>
+                    <th>Kontrahent</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for shipment in order.shipments.all %}
+                <tr>
+                    <td>{{ shipment.wood_kind }}</td>
+                    <td>{{ shipment.get_amount_display }}</td>
+                    <td>{{ shipment.contractor }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+          </table>
+        {% else %}
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Ten kwit wywozowy nie ma jeszcze dodanych dostaw pośrednich.
+              </div>
+            </div>
+        {% endif %}
 
-        <hr>
+    <a href="{% url 'shipment_create' order.pk %}" class="btn btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj dostawę pośrednią </a>
+    <a href="{% url 'shipment_create_all' order.pk %}" class="btn btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj dostawy pośrednie do reszty</a>
 
-        <h2>Dodaj dostawy</h2>
+    <a href="{% url 'shipment_list' order.pk %}" class="btn btn-default">
+            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż dostawy pośrednie
+        </a>
+    <hr/>
 
-    {% if order.has_order_items and not order.is_fully_shipped_indirect %}
+        <h2>Dodaj dostawy końcowe</h2>
 
-    <p>Dodaj dostawy pośrednie kwitu wywozowego nr {{ order }} do reszty do wybranego kontrahenta.</p>
+    {% if order.has_order_items and not order.is_fully_shipped %}
 
-    <form method="post" action="{% url 'shipment_create_all' order.pk %}">
+    <p>Dodaj dostawy końcowe kwitu wywozowego nr {{ order }} do reszty do wybranego kontrahenta.</p>
+
+    <form method="post" action="{% url 'final_shipment_create_all' order.pk %}">
         {% csrf_token %}
 
         {% include 'forms/form_hidden_fields.html' with fields=form.hidden_fields %}
@@ -76,7 +110,7 @@
     {% else %}
         <div class="panel panel-danger">
               <div class="panel-heading">
-                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" ></span> Nie możesz dodać dostawy ponieważ ten kwit wywozowy nie ma jeszcze dodanych pozycji, lub jest w pełni dostarczone.
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" ></span> Nie możesz dodać dostawy ponieważ ten kwit wywozowy nie ma jeszcze dodanych pozycji, lub jest w pełni dostarczony.
               </div>
             </div>
         <a href="{% url 'order_list' %}" class="btn btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do kwitów wywozowych </a>
