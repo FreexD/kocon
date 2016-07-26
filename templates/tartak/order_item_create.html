@@ -10,11 +10,6 @@
       <div class="page-header">
         <h1>Dodaj pozycję dostawy {{ order }}</h1>
       </div>
-        <div class="panel panel-info">
-              <div class="panel-heading">
-                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Dostawa pochodzi z nadleśnictwa {{ order.forest_district }} (kod <b>{{ order.forest_district.code }}</b>). Prosze wybierać tylko dostępne w nim sortymenty.
-                </div>
-            </div>
 
         <h2>Pozycje dostawy</h2>
         {% if order.has_order_items %}

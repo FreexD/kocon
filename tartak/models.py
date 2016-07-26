@@ -397,6 +397,15 @@ class Order(models.Model):
                 shipped_wood_kinds.append(shipment.wood_kind)
         return shipped_wood_kinds
 
+    def get_shipped_amount(self):
+        shipped_amount = Decimal(0)
+        for shipment in self.shipments.all():
+            shipped_amount += shipment.amount
+        return shipped_amount
+
+    def get_shipped_amount_display(self):
+        return round(self.get_shipped_amount(), 2).__str__()
+
 
 class Final_shipment(models.Model):
     """Model definition for FINAL SHIPMENT"""

@@ -22,14 +22,17 @@ class OrderListView(DatatableView):
     template_name = 'tartak/order_list.html'
     datatable_options = {
         'columns': [
-            ('WZ', 'code'),
+            ('Lp.', 'id'),
+            ('Nr kwitu', 'code'),
             ('Kierowca', 'driver'),
             ('Nadleśnictwo', 'forest_district'),
             ('Data', 'date'),
             ('Cena [zł]', 'get_price_display'),
+            ('Masa łączna [m³]', 'get_amount_display'),
             ('Akcja', 'get_action_buttons'),
         ],
         'search_fields': [
+            'id',
             'code',
             'driver__first_name',
             'driver__last_name',
@@ -70,7 +73,7 @@ class OrderCreateView(views.CreateView):
 
 
 class OrderDeleteView(views.DeleteView):
-    model=Order
+    model = Order
     context_object_name = 'order'
     template_name = 'tartak/order_confirm_delete.html'
     success_url = '/'
@@ -100,7 +103,7 @@ class WoodKindCreateView(views.CreateView):
 
 
 class WoodKindDeleteView(views.DeleteView):
-    model=Wood_kind
+    model = Wood_kind
     context_object_name = 'wood_kind'
     template_name = 'tartak/wood_kind_confirm_delete.html'
     success_url = '/price_list/'
@@ -140,6 +143,7 @@ class OrderItemCreateView(views.CreateView):
     def get_context_data(self, **kwargs):
         context = super(OrderItemCreateView, self).get_context_data(**kwargs)
         context['order'] = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        context['form'].fields['wood_kind'].queryset = Wood_kind.objects.filter(forest_district=context['order'].forest_district)
         return context
 
     def get_initial(self):
