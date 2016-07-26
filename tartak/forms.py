@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from decimal import Decimal
 
 from django import forms
@@ -84,3 +86,19 @@ class DriverReportForm(forms.Form):
         final_shipment_list = Final_shipment.objects.filter(driver=driver, date__gte=date_from, date__lte=date_to)
 
         return order_list, final_shipment_list
+
+
+class ContractorReportForm(forms.Form):
+    date_from = forms.DateField(label='Od')
+    date_to = forms.DateField(label='Do')
+    contractor = forms.ModelChoiceField(queryset=Contractor.objects.all(), label='Składnica')
+
+    def get_context_for_contractor(self):
+        """:returns order_list, final_shipment_list"""
+        date_from = self.cleaned_data['date_from']
+        date_to = self.cleaned_data['date_to']
+        contractor = self.cleaned_data['contractor']
+
+        shipment_list = Shipment.objects.filter(contractor=contractor, order__date__gte=date_from, order__date__lte=date_to)
+
+        return shipment_list

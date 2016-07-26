@@ -31,5 +31,6 @@ urlpatterns = [
     # reports
     url(r'^reports/$', views.ReportListView.as_view(), name='reports'),
     url(r'^reports/drivers$', views.DriverReportView.as_view(), name='driver_report'),
+    url(r'^reports/contractors$', views.ContractorReportView.as_view(), name='contractor_report'),
 
 ]

@@ -13,7 +13,7 @@ from django.views.generic.edit import FormView, FormMixin
 
 from lumberjack.settings import PLAC_ID
 from tartak.forms import OrderItemForm, ShipmentForm, ContractorForm, AllShipmentForm, FinalShipmentForm, \
-    AllFinalShipmentForm, DriverReportForm
+    AllFinalShipmentForm, DriverReportForm, ContractorReportForm
 from tartak.models import Order, Wood_kind, Order_item, Shipment, Contractor, Final_shipment, Driver
 
 
@@ -434,7 +434,6 @@ class DriverReportView(views.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(DriverReportView, self).get_context_data(**kwargs)
-        print self.request.GET
         if self.request.GET:
             driver_form = DriverReportForm(self.request.GET)
         else:
@@ -471,6 +470,54 @@ class DriverReportView(views.TemplateView):
                 context['shipments_amount'] = shipments_amount
                 # whole sum
                 context['whole_amount'] = final_shipments_amount + shipments_amount
+
+        return context
+
+
+class ContractorReportView(views.TemplateView):
+    template_name = 'tartak/contractor_report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ContractorReportView, self).get_context_data(**kwargs)
+        if self.request.GET:
+            contractor_form = ContractorReportForm(self.request.GET)
+        else:
+            contractor_form = ContractorReportForm()
+        context['form'] = contractor_form
+
+        contractor = self.request.GET.get('contractor')
+        date_from = self.request.GET.get('date_from')
+        date_to = self.request.GET.get('date_to')
+
+        if contractor or date_from or date_to:
+            if contractor_form.is_valid():
+
+                context['contractor'] = Contractor.objects.get(pk=contractor)
+                context['date_from'] = date_from
+                context['date_to'] = date_to
+
+                context['form_valid'] = True
+                shipment_list = contractor_form.get_context_for_contractor()
+                # shipments
+                shipments_amount = Decimal(0.0)
+                for shipment in shipment_list:
+                    shipments_amount += shipment.amount
+                context['shipment_list'] = shipment_list
+                context['shipments_amount'] = shipments_amount
+                # order list
+                order_list = []
+                for shipment in shipment_list:
+                    if shipment.order not in order_list:
+                        order_list.append(shipment.order)
+                # differences
+                shipped_amount = Decimal(0)
+                for order in order_list:
+                    if order.is_fully_shipped_indirect():
+                        shipped_amount += order.get_final_difference()
+                    else:
+                        shipped_amount += (order.get_shipped_amount() - order.get_final_difference())
+                # whole sum
+                context['shipped_amount'] = shipped_amount
 
         return context
 
