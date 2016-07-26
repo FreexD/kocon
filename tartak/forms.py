@@ -45,7 +45,7 @@ class ContractorForm(forms.ModelForm):
 class FinalShipmentForm(forms.ModelForm):
     class Meta:
         model = Final_shipment
-        fields = ('order', 'contractor', 'wood_kind',  'wood_type', 'amount', 'date', 'driver')
+        fields = ('order', 'contractor',  'wood_type', 'amount', 'date', 'driver')
         widgets = {
             'order': forms.HiddenInput,
         }
@@ -59,15 +59,14 @@ class AllFinalShipmentForm(forms.Form):
     wood_type = forms.CharField(max_length=100, label='Rodzaj drewna (po manipulacji)', initial='Brak manipulacji')
 
     def create_all_final_shipments_for_order(self):
-        for wood_kind, amount in self.cleaned_data['order'].get_final_differences().items():
-            if amount != Decimal(0.0):
-                Final_shipment.objects.create(order=self.cleaned_data['order'],
-                                              contractor=self.cleaned_data['contractor'],
-                                              date=self.cleaned_data['date'],
-                                              driver=self.cleaned_data['driver'],
-                                              wood_type=self.cleaned_data['wood_type'],
-                                              wood_kind=wood_kind,
-                                              amount=amount)
+        amount = self.cleaned_data['order'].get_final_difference()
+        if amount != Decimal(0.0):
+            Final_shipment.objects.create(order=self.cleaned_data['order'],
+                                          contractor=self.cleaned_data['contractor'],
+                                          date=self.cleaned_data['date'],
+                                          driver=self.cleaned_data['driver'],
+                                          wood_type=self.cleaned_data['wood_type'],
+                                          amount=amount)
 
 
 class DriverReportForm(forms.Form):

@@ -13,35 +13,33 @@
 
         <h2>Pozycje dostawy</h2>
         {% if order.has_order_items %}
-        <table class="table">
+          <table class="table">
             <thead>
                 <tr>
                     <th>Sortyment</th>
                     <th>Masa [m³]</th>
                     <th>Cena [zł]</th>
-                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją dostawy i dostawą pośrednią!"></span></th>
+{#                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją dostawy i dostawą pośrednią."></span></th>#}
                 </tr>
             </thead>
             <tbody>
             {% for order_item in order.order_items.all %}
-                <tr {% if not order_item.is_fully_shipped %} class="bg-danger" {% else %} class="bg-success" {% endif %}>
+                <tr>
                     <td>{{ order_item.wood_kind }}</td>
                     <td>{{ order_item.get_amount_display }}</td>
-                    <td>{{ order_item.get_price_display }}
-                    </td>
-                    <td>
-                        {{ order_item.get_difference_display }}
-                        {% if not order_item.is_fully_shipped %}
-                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" data-toggle="tooltip" title="Pozycja nie w pełni dostarczona!"></span>
-                        {% else %}
-                            <span class="glyphicon glyphicon-ok-sign" aria-hidden="true" data-toggle="tooltip" title="Pozycja w pełni dostarczona!"></span>
-                        {% endif %}
-                    </td>
+                    <td>{{ order_item.get_price_display }}</td>
+{#                    <td>#}
+{#                        {{ order_item.get_difference_display }}#}
+{#                        {% if not order_item.is_fully_shipped %}#}
+{#                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" data-toggle="tooltip" title="Pozycja nie w pełni dostarczona!"></span>#}
+{#                        {% else %}#}
+{#                            <span class="glyphicon glyphicon-ok-sign" aria-hidden="true" data-toggle="tooltip" title="Pozycja w pełni dostarczona!"></span>#}
+{#                        {% endif %}#}
+{#                    </td>#}
                 </tr>
             {% endfor %}
-        </tbody>
-        </table>
-
+      </tbody>
+      </table>
         {% else %}
             <div class="panel panel-info">
               <div class="panel-heading">
@@ -50,12 +48,33 @@
             </div>
         {% endif %}
         <br>
+
+    <h4>Masa łączna</h4>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>Łączna masa pozycji dostawy [m³]</td>
+                <td>{{ order.get_amount_display }}</td>
+            </tr>
+            <tr {% if not order.has_differences %} class="bg-success" {% else %} class="bg-warning" {% endif %} >
+                <td>Różnica między dostawami pośrednimi [m³]</td>
+                <td>{{ order.get_difference_display }}</td>
+            </tr>
+            <tr {% if not order.has_final_differences %} class="bg-success" {% else %} class="bg-danger" {% endif %} >
+                <td>Różnica między dostawami końcowymi [m³]</td>
+                <td>{{ order.get_final_difference_display }}</td>
+            </tr>
+        </tbody>
+    </table>
+        <br>
         <a href="{% url 'order_item_create' order.pk %}" class="btn btn-success" > <span class="glyphicon glyphicon-tree-conifer" aria-hidden="true" ></span> Dodaj pozycję dostawy  </a>
-    <a href="{% url 'order_item_list' order.pk %}" class="btn btn-success">
+        <a href="{% url 'order_item_list' order.pk %}" class="btn btn-success">
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż pozycje dostawy
         </a>
+
         <hr/>
-    <h2>Dostawy pośrednie</h2>
+
+        <h2>Dostawy pośrednie</h2>
         {% if order.has_shipments %}
         <table class="table">
             <thead>
@@ -83,6 +102,16 @@
             </div>
         {% endif %}
 
+    <h4>Masa łączna</h4>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>Łączna masa dostaw pośrednich [m³]</td>
+                <td>{{ order.get_shipped_amount_display }}</td>
+            </tr>
+        </tbody>
+    </table>
+
     <a href="{% url 'shipment_create' order.pk %}" class="btn btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj dostawę pośrednią </a>
     <a href="{% url 'shipment_create_all' order.pk %}" class="btn btn-default" > <span class="glyphicon glyphicon-plane" aria-hidden="true" ></span> Dodaj dostawy pośrednie do reszty</a>
 
@@ -93,7 +122,7 @@
 
         <h2>Dodaj dostawy końcowe</h2>
 
-    {% if order.has_order_items and not order.is_fully_shipped %}
+    {% if order.has_order_items and order.has_final_differences %}
 
     <p>Dodaj dostawy końcowe kwitu wywozowego nr {{ order }} do reszty do wybranego kontrahenta.</p>
 

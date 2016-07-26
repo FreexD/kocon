@@ -117,7 +117,7 @@ class OrderItemListView(XEditableDatatableView):
             ('Sortyment', 'wood_kind'),
             ('Masa [m³]', 'amount', helpers.make_xeditable),
             ('Cena [zł]', 'get_price_display'),
-            ('Różnica [zł]', 'get_difference_display_for_datatables'),
+            # ('Różnica [zł]', 'get_difference_display_for_datatables'),
             ('Akcja', 'get_action_buttons')
         ],
         'search_fields': [

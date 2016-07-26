@@ -40,23 +40,23 @@
                     <th>Sortyment</th>
                     <th>Masa [m³]</th>
                     <th>Cena [zł]</th>
-                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją dostawy i dostawą pośrednią."></span></th>
+{#                    <th>Różnica [m³] <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip" title="Różnica masy pomiędzy pozycją dostawy i dostawą pośrednią."></span></th>#}
                 </tr>
             </thead>
             <tbody>
             {% for order_item in order.order_items.all %}
-                <tr {% if not order_item.is_fully_shipped %} class="bg-danger" {% else %} class="bg-success" {% endif %}>
+                <tr>
                     <td>{{ order_item.wood_kind }}</td>
                     <td>{{ order_item.get_amount_display }}</td>
                     <td>{{ order_item.get_price_display }}</td>
-                    <td>
-                        {{ order_item.get_difference_display }}
-                        {% if not order_item.is_fully_shipped %}
-                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" data-toggle="tooltip" title="Pozycja nie w pełni dostarczona!"></span>
-                        {% else %}
-                            <span class="glyphicon glyphicon-ok-sign" aria-hidden="true" data-toggle="tooltip" title="Pozycja w pełni dostarczona!"></span>
-                        {% endif %}
-                    </td>
+{#                    <td>#}
+{#                        {{ order_item.get_difference_display }}#}
+{#                        {% if not order_item.is_fully_shipped %}#}
+{#                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" data-toggle="tooltip" title="Pozycja nie w pełni dostarczona!"></span>#}
+{#                        {% else %}#}
+{#                            <span class="glyphicon glyphicon-ok-sign" aria-hidden="true" data-toggle="tooltip" title="Pozycja w pełni dostarczona!"></span>#}
+{#                        {% endif %}#}
+{#                    </td>#}
                 </tr>
             {% endfor %}
       </tbody>
@@ -69,6 +69,25 @@
             </div>
         {% endif %}
         <br>
+
+    <h4>Masa łączna</h4>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>Łączna masa pozycji dostawy [m³]</td>
+                <td>{{ order.get_amount_display }}</td>
+            </tr>
+            <tr {% if not order.has_differences %} class="bg-success" {% else %} class="bg-warning" {% endif %} >
+                <td>Różnica między dostawami pośrednimi [m³]</td>
+                <td>{{ order.get_difference_display }}</td>
+            </tr>
+            <tr {% if not order.has_final_differences %} class="bg-success" {% else %} class="bg-danger" {% endif %} >
+                <td>Różnica między dostawami końcowymi [m³]</td>
+                <td>{{ order.get_final_difference_display }}</td>
+            </tr>
+        </tbody>
+    </table>
+
         <a href="{% url 'order_item_create' order.pk %}" class="btn btn-success" > <span class="glyphicon glyphicon-tree-conifer" aria-hidden="true" ></span> Dodaj pozycję dostawy  </a>
         <a href="{% url 'order_item_list' order.pk %}" class="btn btn-success">
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż pozycje dostawy
@@ -106,7 +125,7 @@
         <tbody>
             <tr>
                 <td>Łączna masa dostaw pośrednich [m³]</td>
-                <td>{{ order.get_shipped_amount_display}}</td>
+                <td>{{ order.get_shipped_amount_display }}</td>
             </tr>
         </tbody>
     </table>
@@ -123,7 +142,6 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>Sortyment</th>
                     <th>Masa [m³]</th>
                     <th>Kontrahent</th>
                     <th>Rodzaj drewna</th>
@@ -134,7 +152,6 @@
             <tbody>
             {% for final_shipment in order.final_shipments.all %}
                 <tr>
-                    <td>{{ final_shipment.wood_kind }}</td>
                     <td>{{ final_shipment.get_amount_display }}</td>
                     <td>{{ final_shipment.contractor }}</td>
                     <td>{{ final_shipment.wood_type }}</td>
@@ -151,6 +168,16 @@
               </div>
             </div>
         {% endif %}
+
+    <h4>Masa łączna</h4>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>Łączna masa dostaw końcowych [m³]</td>
+                <td>{{ order.get_finally_shipped_amount_display }}</td>
+            </tr>
+        </tbody>
+    </table>
 
     <a href="{% url 'final_shipment_create' order.pk %}" class="btn btn-info" > <span class="glyphicon glyphicon-road" aria-hidden="true" ></span> Dodaj dostawę końcową </a>
     <a href="{% url 'final_shipment_create_all' order.pk %}" class="btn btn-info" > <span class="glyphicon glyphicon-road" aria-hidden="true" ></span> Dodaj dostawy końcowe do reszty</a>
