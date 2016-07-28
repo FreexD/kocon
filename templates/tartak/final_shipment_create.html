@@ -56,13 +56,13 @@
                 <td>Łączna masa pozycji dostawy [m³]</td>
                 <td>{{ order.get_amount_display }}</td>
             </tr>
-            <tr {% if not order.has_differences %} class="bg-success" {% else %} class="bg-warning" {% endif %} >
+            <tr {% if not order.has_difference %} class="bg-success" {% else %} class="bg-warning" {% endif %} >
                 <td>Różnica między dostawami pośrednimi [m³]</td>
                 <td>{{ order.get_difference_display }}</td>
             </tr>
-            <tr {% if not order.has_final_differences %} class="bg-success" {% else %} class="bg-danger" {% endif %} >
+            <tr {% if not order.has_difference %} class="bg-success" {% else %} class="bg-danger" {% endif %} >
                 <td>Różnica między dostawami końcowymi [m³]</td>
-                <td>{{ order.get_final_difference_display }}</td>
+                <td>{{ order.get_difference_display }}</td>
             </tr>
         </tbody>
     </table>
@@ -126,7 +126,7 @@
 
         <h2>Dodaj dostawę końcową</h2>
 
-    {% if order.has_order_items and order.has_differences %}
+    {% if order.has_order_items and order.has_difference %}
 
     <form method="post" action="{% url 'final_shipment_create' order.pk %}">
         {% csrf_token %}

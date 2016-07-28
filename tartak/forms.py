@@ -61,7 +61,7 @@ class AllFinalShipmentForm(forms.Form):
     wood_type = forms.CharField(max_length=100, label='Rodzaj drewna (po manipulacji)', initial='Brak manipulacji')
 
     def create_all_final_shipments_for_order(self):
-        amount = self.cleaned_data['order'].get_final_difference()
+        amount = self.cleaned_data['order'].get_difference()
         if amount != Decimal(0.0):
             Final_shipment.objects.create(order=self.cleaned_data['order'],
                                           contractor=self.cleaned_data['contractor'],

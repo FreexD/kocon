@@ -86,21 +86,10 @@ class Order_item(models.Model):
             raise ValidationError({'wood_kind':'Prosze wybrać sortyment oferowany przez {fd} (kod {fdk}).'
                                   .format(fd=self.order.forest_district, fdk=self.order.forest_district.code)})
 
-        if self.calculate_difference() < 0:
-            raise ValidationError({'amount': 'Prosze wprowadzić masę nie powodującą powstania ujemnej różnicy dla dostawy pośredniej.'})
-
-        if self.order.get_final_difference() < 0:
-            raise ValidationError({'amount': 'Prosze wprowadzić masę nie powodującą powstania ujemnej różnicy dla dostawy końcowej.'})
-
     def save(self, **kwargs):
-        if self.calculate_difference() < 0 or self.order.get_final_difference() < 0:
-            return
         return super(Order_item, self).save(**kwargs)
 
     def can_delete(self):
-        for final_shipment in self.order.final_shipments.all():
-            if final_shipment.wood_kind == self.wood_kind:
-                return False
         for shipment in self.order.shipments.all():
             if shipment.wood_kind == self.wood_kind:
                 return False
@@ -117,35 +106,40 @@ class Order_item(models.Model):
     def __unicode__(self):
         return self.order.__unicode__() + " - " + self.wood_kind.__unicode__() + " - " + self.amount.__str__()
 
-    def calculate_difference(self):
+    # difference
+
+    def get_difference(self):
         difference = self.amount
-        for shipment in self.order.shipments.all():
-            if shipment.wood_kind == self.wood_kind:
-                difference -= shipment.amount
+        if self.order.is_depot():
+            for shipment in self.order.shipments.all():
+                if shipment.wood_kind == self.wood_kind:
+                    difference -= shipment.amount
         return difference
 
-    def calculate_final_difference(self):
-        difference = self.amount
-        for final_shipment in self.order.final_shipments.all():
-            if final_shipment.wood_kind == self.wood_kind:
-                difference -= final_shipment.amount
-        return difference
+    def has_difference(self):
+        return not self.get_difference() <= 0
 
     def get_difference_display(self):
-        return round(self.calculate_difference(), 2).__str__()
+        difference = self.get_difference()
+        if self.has_difference():
+            return round(-self.get_difference(), 2).__str__()
+        elif difference == 0:
+            return round(self.get_difference(), 2).__str__()
+        else:
+            return '+' + round(abs(self.get_difference()), 2).__str__()
 
     def is_fully_shipped(self):
-        """:return true if difference between amount and final_shipments amount == 0"""
-        return self.calculate_difference() == 0
+        """:return true if difference between amount and final_shipments amount <= 0"""
+        return not self.has_difference()
 
-    def calculate_price(self):
+    def get_price(self):
         return self.amount * self.detail_price
 
     def get_detail_price_display(self):
         return self.detail_price.__str__()
 
     def get_price_display(self):
-        return round(self.calculate_price(), 2).__str__()
+        return round(self.get_price(), 2).__str__()
 
     def get_difference_display_for_datatables(self):
         if self.is_fully_shipped():
@@ -183,6 +177,7 @@ class Contractor(models.Model):
     """Model definition for CONTRACTOR"""
     code = models.CharField(max_length=30, unique=True, verbose_name='Kod')
     name = models.CharField(max_length=100, verbose_name='Nazwa')
+    is_depot = models.BooleanField(default=False, verbose_name='Składnica')
 
     def __str__(self):
         return self.name
@@ -237,23 +232,7 @@ class Shipment(models.Model):
         if self.wood_kind not in self.order.get_wood_kinds():
             raise ValidationError({'wood_kind': 'Prosze wybrać sortyment będący w pozycjach dostawy kwitu wywozowego.'})
 
-        max_amount = self.order.get_differences()[self.wood_kind]
-        if self.amount > max_amount:
-            if max_amount == 0:
-                raise ValidationError({'wood_kind': 'Prosze wybrać sortyment nie będący już w pełni dostarczony.'})
-            else:
-                raise ValidationError({'amount': 'Prosze wybrać mniejszą masę. Tego sortymentu zostało jeszcze {amount} m³.'.format(amount=max_amount)})
-
     def save(self, **kwargs):
-        try:
-            former_shipment = Shipment.objects.get(pk=self.pk)
-        except Shipment.DoesNotExist:
-            former_shipment = None
-        amount_delta = Decimal(0)
-        if former_shipment:
-            amount_delta = former_shipment.amount - self.amount
-        if not self.calculate_difference() + amount_delta >= 0:
-            return
         return super(Shipment, self).save(**kwargs)
 
     def __str__(self):
@@ -276,11 +255,6 @@ class Shipment(models.Model):
                '</span>' \
                '</a>'
 
-    def calculate_difference(self):
-        for order_item in self.order.order_items.all():
-            if self.wood_kind == order_item.wood_kind:
-                return order_item.calculate_difference()
-
 
 class Order(models.Model):
     """Model definition for ORDER"""
@@ -300,37 +274,17 @@ class Order(models.Model):
     def __unicode__(self):
         return self.code
 
-    def get_differences(self):
-        """:returns map with differences between order_items and shipments"""
-        differences_map = {}
-        for order_item in self.order_items.all():
-            differences_map[order_item.wood_kind] = order_item.amount
-        for shipment in self.shipments.all():
-            differences_map[shipment.wood_kind] -= shipment.amount
-        return differences_map
+    def is_depot(self):
+        """:return true if shipments and no final shipments in the order, false otherwise"""
+        return self.has_shipments() and not self.has_final_shipments()
 
-    def get_final_differences(self):
-        """:returns map with differences between order_items and final_shipments"""
-        differences_map = {}
-        for order_item in self.order_items.all():
-            differences_map[order_item.wood_kind] = order_item.amount
-        for final_shipment in self.final_shipments.all():
-            differences_map[final_shipment.wood_kind] -= final_shipment.amount
-        return differences_map
+    def is_empty(self):
+        """:return true if has no shipments and final shipments"""
+        return not self.has_shipments() and not self.has_final_shipments()
 
     def is_fully_shipped(self):
         """:return true if no differences between order_items and final_shipments amounts"""
-        for amounts in self.get_final_differences().values():
-            if amounts != 0:
-                return False
-        return True
-
-    def is_fully_shipped_indirect(self):
-        """:return true if no differences between order_items and shipments amounts"""
-        for amounts in self.get_differences().values():
-            if amounts != 0:
-                return False
-        return True
+        return not self.has_difference()
 
     def get_action_buttons(self):
         buttons = '<a href="'\
@@ -345,7 +299,7 @@ class Order(models.Model):
                '<span class="glyphicon glyphicon-trash" aria-hidden="true">' \
                '</span>' \
                '</a>'
-        if self.has_final_differences():
+        if not self.is_fully_shipped():
             buttons += ' <span ' \
                     'class="glyphicon glyphicon-alert" style="float:right" ' \
                     'aria-hidden="true" ' \
@@ -357,23 +311,29 @@ class Order(models.Model):
     def get_absolute_url(self):
         return reverse('order_list')
 
-    def calculate_price(self):
+    # Price and Amount
+
+    def get_price(self):
+        """:returns order's price"""
         price = Decimal(0)
         for order_item in self.order_items.all():
-            price += order_item.calculate_price()
+            price += order_item.get_price()
         return price
 
-    def calculate_amount(self):
+    def get_amount(self):
+        """:returns order's amount"""
         amount = Decimal(0)
         for order_item in self.order_items.all():
             amount += order_item.amount
         return amount
 
     def get_price_display(self):
-        return round(self.calculate_price(), 2).__str__()
+        return round(self.get_price(), 2).__str__()
 
     def get_amount_display(self):
-        return round(self.calculate_amount(), 2).__str__()
+        return round(self.get_amount(), 2).__str__()
+
+    # has functions
 
     def has_order_items(self):
         return self.order_items.all().exists()
@@ -384,78 +344,76 @@ class Order(models.Model):
     def has_final_shipments(self):
         return self.final_shipments.all().exists()
 
+    # wood kinds
+
     def get_wood_kinds(self):
+        """:returns list of ordered wood kinds"""
         wood_kinds = []
         for order_item in self.order_items.all():
             wood_kinds.append(order_item.wood_kind)
         return wood_kinds
 
     def get_shipped_wood_kinds(self):
+        """:returns list of shipped wood kinds if is_depot"""
         shipped_wood_kinds = []
-        for shipment in self.shipments.all():
-            if shipment.wood_kind not in shipped_wood_kinds:
-                shipped_wood_kinds.append(shipment.wood_kind)
+        if self.is_depot():
+            for shipment in self.shipments.all():
+                if shipment.wood_kind not in shipped_wood_kinds:
+                    shipped_wood_kinds.append(shipment.wood_kind)
         return shipped_wood_kinds
 
+    # shipped amount
+
     def get_shipped_amount(self):
+        """:returns shipped or finally shipped amount"""
         shipped_amount = Decimal(0)
-        for shipment in self.shipments.all():
-            shipped_amount += shipment.amount
+        if self.is_depot():
+            for shipment in self.shipments.all():
+                shipped_amount += shipment.amount
+        else:
+            for final_shipment in self.final_shipments.all():
+                shipped_amount += final_shipment.amount
         return shipped_amount
 
     def get_shipped_amount_display(self):
         return round(self.get_shipped_amount(), 2).__str__()
 
-    def get_finally_shipped_amount(self):
-        finally_shipped_amount = Decimal(0)
-        for final_shipment in self.final_shipments.all():
-            finally_shipped_amount += final_shipment.amount
-        return finally_shipped_amount
+    # differences
 
-    def get_finally_shipped_amount_display(self):
-        return round(self.get_finally_shipped_amount(), 2).__str__()
+    def get_differences(self):
+        """:returns map with differences between order_items and shipments if is_depot"""
+        differences_map = {}
+        if self.is_depot():
+            for order_item in self.order_items.all():
+                differences_map[order_item.wood_kind] = order_item.amount
+            for shipment in self.shipments.all():
+                differences_map[shipment.wood_kind] -= shipment.amount
+        return differences_map
 
     def get_difference(self):
+        """:returns differences between order_items and shipments if is_depot, final_shipments otherwise"""
         difference = Decimal(0)
         for order_item in self.order_items.all():
             difference += order_item.amount
-        for shipment in self.shipments.all():
-            difference -= shipment.amount
+        if self.is_depot():
+            for shipment in self.shipments.all():
+                difference -= shipment.amount
+        else:
+            for final_shipment in self.final_shipments.all():
+                difference -= final_shipment.amount
         return difference
 
     def get_difference_display(self):
-        return round(self.get_difference(), 2).__str__()
+        difference = self.get_difference()
+        if self.has_difference():
+            return round(-self.get_difference(), 2).__str__()
+        elif difference == 0:
+            return round(self.get_difference(), 2).__str__()
+        else:
+            return '+'+round(abs(self.get_difference()), 2).__str__()
 
-    def has_differences(self):
-        return not self.get_difference() == 0
-
-    def get_final_difference(self):
-        final_difference = Decimal(0)
-        for order_item in self.order_items.all():
-            final_difference += order_item.amount
-        for final_shipment in self.final_shipments.all():
-            final_difference -= final_shipment.amount
-        return final_difference
-
-    def get_final_difference_display(self):
-        return round(self.get_final_difference(), 2).__str__()
-
-    def has_final_differences(self):
-        return not self.get_final_difference() == Decimal(0)
-
-    def get_indirect_difference(self):
-        indirect_difference = Decimal(0)
-        for shipment in self.shipments.all():
-            indirect_difference += shipment.amount
-        for final_shipment in self.final_shipments.all():
-            indirect_difference -= final_shipment.amount
-        return indirect_difference
-
-    def get_indirect_difference_display(self):
-        return round(self.get_indirect_difference(), 2).__str__()
-
-    def has_indirect_differences(self):
-        return not self.get_indirect_difference() == Decimal(0)
+    def has_difference(self):
+        return not self.get_difference() <= 0
 
 
 class Final_shipment(models.Model):
@@ -471,28 +429,7 @@ class Final_shipment(models.Model):
         verbose_name = 'Dostawa końcowa'
         verbose_name_plural = 'Dostawy końcowe'
 
-    def clean(self):
-        max_amount = self.order.get_final_difference()
-        if self.amount > max_amount:
-            if max_amount == 0:
-                raise ValidationError({'wood_kind': 'Nie można juz dodać dostawy końcowej dla tego zamówienia.'})
-            else:
-                raise ValidationError({'amount': 'Prosze wybrać mniejszą masę. Łącznie pozostało jeszcze {amount} m³.'.format(amount=max_amount)})
-
-        # amount_delta = get_object_or_404(Shipment, pk=self.pk).amount - self.amount
-        # if not self.calculate_difference() + amount_delta >= 0:
-        #     raise ValidationError({'amount': 'Prosze wprowadzić masę nie powodującą powstania ujemnej różnicy.'})
-
     def save(self, **kwargs):
-        try:
-            former_shipment = Final_shipment.objects.get(pk=self.pk)
-        except Final_shipment.DoesNotExist:
-            former_shipment = None
-        amount_delta = Decimal(0)
-        if former_shipment:
-            amount_delta = former_shipment.amount - self.amount
-        if not self.calculate_difference() + amount_delta >= 0:
-            return
         return super(Final_shipment, self).save(**kwargs)
 
     def __str__(self):
@@ -515,5 +452,39 @@ class Final_shipment(models.Model):
                '</span>' \
                '</a>'
 
-    def calculate_difference(self):
-        return self.order.get_final_difference()
+
+class Contractor_shipment(models.Model):
+    """Model definition for CONTRACTOR SHIPMENT"""
+    depot = models.ForeignKey('Contractor', on_delete=models.CASCADE, related_name='contractor_shipments_from', verbose_name='Składnica')
+    contractor = models.ForeignKey('Contractor', on_delete=models.CASCADE, related_name='contractor_shipments_to', verbose_name='Kontrahent')
+    amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Masa', validators=[MinValueValidator(Decimal('0.01'))])  # in m3
+    date = models.DateField(verbose_name='Data')
+    driver = models.ForeignKey('Driver', on_delete=models.CASCADE, related_name='contractor_shipments', verbose_name='Kierowca')
+    wood_type = models.CharField(max_length=100, verbose_name='Rodzaj drewna (po manipulacji)', default='Brak manipulacji')
+
+    class Meta:
+        verbose_name = 'Dostawa końcowa ze składnicy'
+        verbose_name_plural = 'Dostawy końcowe ze składnicy'
+
+    def save(self, **kwargs):
+        return super(Contractor_shipment, self).save(**kwargs)
+
+    def __str__(self):
+        return self.order.__str__() + " - " + self.wood_type.__str__() + " - " + self.amount.__str__()
+
+    def __unicode__(self):
+        return self.order.__unicode__() + " - " + self.wood_type.__str__() + " - " + self.amount.__str__()
+
+    def get_amount_display(self):
+        return self.amount.__str__()
+
+    def get_absolute_url(self):
+        return reverse('contractor_shipment_list', kwargs={'pk': self.order.pk})
+
+    def get_action_buttons(self):
+        return '<a href="' \
+               + reverse('contractor_shipment_delete', kwargs={'pk': self.pk}) + \
+               '" data-remote="false" data-toggle="modal" data-target="#myModal" class="btn btn-sm btn-danger">' \
+               '<span class="glyphicon glyphicon-trash" aria-hidden="true">' \
+               '</span>' \
+               '</a>'

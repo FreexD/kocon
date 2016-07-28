@@ -512,10 +512,10 @@ class ContractorReportView(views.TemplateView):
                 # differences
                 shipped_amount = Decimal(0)
                 for order in order_list:
-                    if order.is_fully_shipped_indirect():
-                        shipped_amount += order.get_final_difference()
+                    if order.is_fully_shipped():
+                        shipped_amount += order.get_difference()
                     else:
-                        shipped_amount += (order.get_shipped_amount() - order.get_final_difference())
+                        shipped_amount += (order.get_shipped_amount() - order.get_difference())
                 # whole sum
                 context['shipped_amount'] = shipped_amount
 
