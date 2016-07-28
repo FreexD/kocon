@@ -615,7 +615,7 @@ class Deal_item(models.Model):
 
     def get_remaining(self):
         remaining = self.amount
-        order_item_list = Order_item.objects.filter(wood_kind__code__icontains=self.code, order__date__gte=self.deal.date_from, order__date__lte=self.deal.date_to)
+        order_item_list = Order_item.objects.filter(order__forest_district=self.deal.forest_district, wood_kind__code__icontains=self.code, order__date__gte=self.deal.date_from, order__date__lte=self.deal.date_to)
         for order_item in order_item_list:
             remaining -= order_item.amount
         return remaining
