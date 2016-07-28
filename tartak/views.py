@@ -150,7 +150,9 @@ class OrderItemListView(XEditableDatatableView):
 
     def get_context_data(self, **kwargs):
         context = super(OrderItemListView, self).get_context_data(**kwargs)
-        context['order'] = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        order = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        context['order'] = order
+        context['deal'] = order.forest_district.get_deal_by_date(order.date)
         return context
 
 
@@ -161,8 +163,10 @@ class OrderItemCreateView(views.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(OrderItemCreateView, self).get_context_data(**kwargs)
-        context['order'] = get_object_or_404(Order, pk=self.kwargs.get('pk'))
-        context['form'].fields['wood_kind'].queryset = Wood_kind.objects.filter(forest_district=context['order'].forest_district)
+        order = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        context['order'] = order
+        context['form'].fields['wood_kind'].queryset = Wood_kind.objects.filter(forest_district=order.forest_district)
+        context['deal'] = order.forest_district.get_deal_by_date(order.date)
         return context
 
     def get_initial(self):

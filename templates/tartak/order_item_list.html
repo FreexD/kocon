@@ -11,6 +11,49 @@
         <h1>Pozycje dostawy {{ order }}</h1>
       </div>
 
+        <h2>Szczegóły umowy</h2>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>Kod</td>
+                <td>{{ deal.code }}</td>
+            </tr>
+            <tr>
+                <td>Nazwa</td>
+                <td>{{ deal }}</td>
+            </tr>
+            <tr>
+                <td>Obowiązuje od</td>
+                <td>{{ deal.date_from }}</td>
+            </tr>
+            <tr>
+                <td>Obowiązuje do</td>
+                <td>{{ deal.date_to }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <h4>Pozycje umowy</h4>
+    <table class="table">
+            <thead>
+                <tr>
+                    <th>Sortyment</th>
+                    <th>Masa na umowie [m³]</th>
+                    <th>Masa pozostała [m³]</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for deal_item in deal.deal_items.all %}
+                <tr >
+                    <td>{{ deal_item.code }}</td>
+                    <td>{{ deal_item.get_amount_display }}</td>
+                    <td>{{ deal_item.get_remaining_display }}</td>
+                </tr>
+            {% endfor %}
+      </tbody>
+      </table>
+
+    <br>
+
     {{ datatable }}
 
         <br>
