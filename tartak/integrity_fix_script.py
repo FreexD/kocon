@@ -5,7 +5,7 @@ for order in Order.objects.all():
     if order.is_both():
         print('Found {}.'.format(order))
         # convert final shipments to contractor shipments, delete final_shipments
-        depot = order.order_items.all()[0].contractor
+        depot = order.shipments.all()[0].contractor
         for final_shipment in order.final_shipments.all():
             contractor_shipment = Contractor_shipment.objects.create(depot=depot,
                                                                      contractor=final_shipment.contractor,
