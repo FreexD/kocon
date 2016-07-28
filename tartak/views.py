@@ -255,8 +255,10 @@ class ShipmentCreateView(views.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(ShipmentCreateView, self).get_context_data(**kwargs)
-        context['order'] = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        order = get_object_or_404(Order, pk=self.kwargs.get('pk'))
+        context['order'] = order
         context['form'].fields['contractor'].queryset = Contractor.objects.filter(is_depot=True)
+        context['form'].fields['wood_kind'].queryset = Wood_kind.objects.filter(forest_district=order.forest_district)
         return context
 
     def get_initial(self):
