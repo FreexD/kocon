@@ -28,7 +28,7 @@
                 <td>{{ date_to }}</td>
             </tr>
             <tr class="bg-info">
-                <td>Masa na składnicy przed {{ date_from }} [m³]</td>
+                <td>Na składnicy przed {{ date_from }} - łączna masa [m³]</td>
                 <td><b>{{ before_amount }}</b></td>
             </tr>
             <tr class="bg-info">
@@ -40,13 +40,13 @@
                 <td><b>{{ contractor_shipments_amount }}</b></td>
             </tr>
             <tr class="bg-success">
-                <td>Ile pozostało na składnicy - masa [m³]</td>
+                <td>Ile pozostało na składnicy - masa łączna [m³]</td>
                 <td><b>{{ whole_amount }}</b></td>
             </tr>
         </tbody>
     </table>
 
-        <h2>Dostawy pośrednie</h2>
+        <h2>Dostawy pośrednie na składnicę</h2>
         {% if shipment_list %}
         <table class="table">
             <thead>
@@ -54,7 +54,7 @@
                     <th>Nr kwitu</th>
                     <th>Sortyment</th>
                     <th>Masa [m³]</th>
-                    <th>Kontrahent</th>
+                    <th>Składnica</th>
                     <th>Rodzaj drewna</th>
                     <th>Kierowca</th>
                     <th>Data</th>
@@ -82,7 +82,7 @@
             </div>
         {% endif %}
 
-        <h2>Dostawy końcowe ze składnic</h2>
+        <h2>Dostawy końcowe ze składnicy</h2>
         {% if contractor_shipment_list %}
         <table class="table">
             <thead>
@@ -111,7 +111,7 @@
         {% else %}
             <div class="panel panel-info">
               <div class="panel-heading">
-                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Ten kierowca nie ma żadnych dostaw końcowych ze składnicy w tym okresie.
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Z tej składnicy nie ma żadnych dostaw końcowych w tym okresie.
               </div>
             </div>
         {% endif %}

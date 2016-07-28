@@ -97,13 +97,13 @@ class Order_item(models.Model):
         deal = self.order.forest_district.get_deal_by_date(self.order.date)
         remaining = deal.get_remaining(self.wood_kind)
         if self.amount > remaining:
-            raise ValidationError({'wood_kind': 'Prosze wybrać mniej drewna. Na umowie {d} zostało go jeszcze {rm} m3.'
+            raise ValidationError({'amount': 'Prosze wybrać mniej drewna. Na umowie {d} zostało go jeszcze {rm} m3.'
                                   .format(rm=remaining, d=deal)})
 
     def save(self, **kwargs):
         try:
             former_order_item = Order_item.objects.get(pk=self.pk)
-        except Shipment.DoesNotExist:
+        except Order_item.DoesNotExist:
             former_order_item = None
         amount_delta = Decimal(0)
         deal = self.order.forest_district.get_deal_by_date(self.order.date)
@@ -240,10 +240,10 @@ class Contractor(models.Model):
     def get_depot_amount_until(self, date):
         depot_amount = Decimal(0)
         if self.is_depot:
-            shipments = Shipment.objects.filter(contractor=self, order__date__lte=date)
-            contractor_shipments = Contractor_shipment.objects.filter(depot=self, date__lte=date)
+            shipments = Shipment.objects.filter(contractor=self, order__date__lt=date)
+            contractor_shipments = Contractor_shipment.objects.filter(depot=self, date__lt=date)
             for shipment, contractor_shipment in itertools.izip_longest(shipments, contractor_shipments):
-                print('{} {} {}'.format(shipment, contractor_shipment, depot_amount))
+                # print('{} {} {}'.format(shipment, contractor_shipment, depot_amount))
                 if shipment:
                     depot_amount += shipment.amount
                 if contractor_shipment:
@@ -256,7 +256,7 @@ class Contractor(models.Model):
             shipments = Shipment.objects.filter(contractor=self)
             contractor_shipments = Contractor_shipment.objects.filter(depot=self)
             for shipment, contractor_shipment in itertools.izip_longest(shipments, contractor_shipments):
-                print('{} {} {}'.format(shipment, contractor_shipment, depot_amount))
+                # print('{} {} {}'.format(shipment, contractor_shipment, depot_amount))
                 if shipment:
                     depot_amount += shipment.amount
                 if contractor_shipment:
@@ -356,6 +356,10 @@ class Order(models.Model):
     def is_empty(self):
         """:return true if has no shipments and final shipments"""
         return not self.has_shipments() and not self.has_final_shipments()
+
+    def is_both(self):
+        """:return true if has shipments and final shipments"""
+        return self.has_shipments() and self.has_final_shipments()
 
     def is_fully_shipped(self):
         """:return true if no differences between order_items and final_shipments amounts"""
@@ -458,7 +462,7 @@ class Order(models.Model):
     def get_differences(self):
         """:returns map with differences between order_items and shipments if is_depot"""
         differences_map = {}
-        if self.is_depot():
+        if self.is_depot() or self.is_empty():
             for order_item in self.order_items.all():
                 differences_map[order_item.wood_kind] = order_item.amount
             for shipment in self.shipments.all():
