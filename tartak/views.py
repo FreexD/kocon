@@ -6,12 +6,10 @@ from decimal import Decimal
 from datatableview import helpers
 from datatableview.views import DatatableView, XEditableDatatableView
 from django.db import IntegrityError
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 import django.views.generic as views
-from django.views.generic.edit import FormView, FormMixin
+from django.views.generic.edit import FormView
 
-from lumberjack.settings import PLAC_ID
 from tartak.forms import OrderItemForm, ShipmentForm, ContractorForm, AllShipmentForm, FinalShipmentForm, \
     AllFinalShipmentForm, DriverReportForm, ContractorReportForm, ContractorShipmentForm
 from tartak.models import Order, Wood_kind, Order_item, Shipment, Contractor, Final_shipment, Driver, \
@@ -69,6 +67,11 @@ class OrderDetailView(views.DeleteView):
     model = Order
     context_object_name = 'order'
     template_name = 'tartak/order_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrderDetailView, self).get_context_data(**kwargs)
+        context['deal'] = self.object.forest_district.get_deal_by_date(self.object.date)
+        return context
 
 
 class OrderCreateView(views.CreateView):
@@ -537,27 +540,25 @@ class ContractorReportView(views.TemplateView):
                 context['date_to'] = date_to
 
                 context['form_valid'] = True
-                shipment_list = contractor_form.get_context_for_contractor()
+                shipment_list, contractor_shipment_list = contractor_form.get_context_for_contractor()
                 # shipments
                 shipments_amount = Decimal(0.0)
                 for shipment in shipment_list:
                     shipments_amount += shipment.amount
                 context['shipment_list'] = shipment_list
                 context['shipments_amount'] = shipments_amount
-                # order list
-                order_list = []
-                for shipment in shipment_list:
-                    if shipment.order not in order_list:
-                        order_list.append(shipment.order)
-                # differences
-                shipped_amount = Decimal(0)
-                for order in order_list:
-                    if order.is_fully_shipped():
-                        shipped_amount += order.get_difference()
-                    else:
-                        shipped_amount += (order.get_shipped_amount() - order.get_difference())
+                # contractor shipments
+                contractor_shipments_amount = Decimal(0.0)
+                for contractor_shipment in contractor_shipment_list:
+                    contractor_shipments_amount += contractor_shipment.amount
+                context['contractor_shipment_list'] = contractor_shipment_list
+                context['contractor_shipments_amount'] = contractor_shipments_amount
+                # before amount
+                contractor = Contractor.objects.get(pk=contractor)
+                before_amount = contractor.get_depot_amount_until(date_from)
+                context['before_amount'] = contractor.get_depot_amount_until(date_from)
                 # whole sum
-                context['shipped_amount'] = shipped_amount
+                context['whole_amount'] = before_amount + shipments_amount - contractor_shipments_amount
 
         return context
 
@@ -585,7 +586,7 @@ class DriverReportView(views.TemplateView):
                 context['date_to'] = date_to
 
                 context['form_valid'] = True
-                order_list, final_shipment_list = driver_form.get_context_for_driver()
+                order_list, final_shipment_list, contractor_shipment_list = driver_form.get_context_for_driver()
                 # final shipments
                 final_shipments_amount = Decimal(0.0)
                 for final_shipment in final_shipment_list:
@@ -601,8 +602,14 @@ class DriverReportView(views.TemplateView):
                         shipments_amount += shipment.amount
                 context['shipment_list'] = shipment_list
                 context['shipments_amount'] = shipments_amount
+                # contractor shipments
+                contractor_shipments_amount = Decimal(0.0)
+                for contractor_shipment in contractor_shipment_list:
+                    contractor_shipments_amount += contractor_shipment.amount
+                context['contractor_shipment_list'] = contractor_shipment_list
+                context['contractor_shipments_amount'] = contractor_shipments_amount
                 # whole sum
-                context['whole_amount'] = final_shipments_amount + shipments_amount
+                context['whole_amount'] = final_shipments_amount + shipments_amount + contractor_shipments_amount
 
         return context
 

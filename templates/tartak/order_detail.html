@@ -30,6 +30,10 @@
                 <td>Cena [zł]</td>
                 <td>{{ order.get_price_display }}</td>
             </tr>
+            <tr>
+                <td>Umowa</td>
+                <td>{{ deal }}</td>
+            </tr>
         </tbody>
     </table>
     <h2>Pozycje dostawy</h2>
@@ -189,6 +193,47 @@
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Pokaż dostawy końcowe
         </a>
     {% endif %}
+    <hr>
+    <h2>Szczegóły umowy</h2>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>Kod</td>
+                <td>{{ deal.code }}</td>
+            </tr>
+            <tr>
+                <td>Nazwa</td>
+                <td>{{ deal }}</td>
+            </tr>
+            <tr>
+                <td>Obowiązuje od</td>
+                <td>{{ deal.date_from }}</td>
+            </tr>
+            <tr>
+                <td>Obowiązuje do</td>
+                <td>{{ deal.date_to }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <h4>Pozycje umowy</h4>
+    <table class="table">
+            <thead>
+                <tr>
+                    <th>Sortyment</th>
+                    <th>Masa na umowie [m³]</th>
+                    <th>Masa pozostała [m³]</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for deal_item in deal.deal_items.all %}
+                <tr >
+                    <td>{{ deal_item.code }}</td>
+                    <td>{{ deal_item.get_amount_display }}</td>
+                    <td>{{ deal_item.get_remaining_display }}</td>
+                </tr>
+            {% endfor %}
+      </tbody>
+      </table>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-default" data-dismiss="modal">Zamknij</button>

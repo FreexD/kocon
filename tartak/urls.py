@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'^price_list/create$', views.WoodKindCreateView.as_view(), name='wood_kind_create'),
     url(r'^price_list/delete/(?P<pk>\d+)$', views.WoodKindDeleteView.as_view(), name='wood_kind_delete'),
     url(r'^backup$', views.BackupView.as_view(), name='backup_details'),
-    url(r'^(?P<pk>\d+)/price$', views.WoodKindPriceRetrieveView.as_view(), name='wood_kind_price'),
+    url(r'^(?P<pk>\d+)/price/$', views.WoodKindPriceRetrieveView.as_view(), name='wood_kind_price'),
     # final shipments
     url(r'^(?P<pk>\d+)/final_shipment/list$', views.FinalShipmentListView.as_view(), name='final_shipment_list'),
     url(r'^(?P<pk>\d+)/final_shipment/create$', views.FinalShipmentCreateView.as_view(), name='final_shipment_create'),

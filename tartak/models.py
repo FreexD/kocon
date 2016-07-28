@@ -30,8 +30,8 @@ class Driver(models.Model):
 
 class Forest_district(models.Model):
     """Model definition for FOREST DISTRICT"""
-    code = models.CharField(max_length=30, unique=True)
-    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=30, unique=True, verbose_name='Kod')
+    name = models.CharField(max_length=100, verbose_name='Nazwa')
 
     class Meta:
         verbose_name = 'Nadleśnictwo'
@@ -42,6 +42,13 @@ class Forest_district(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def get_deal_by_date(self, date):
+        for deal in self.deals.all():
+            if deal.is_date_valid(date):
+                return deal
+        return None
+
 
 
 class Wood_kind(models.Model):
@@ -87,8 +94,25 @@ class Order_item(models.Model):
             raise ValidationError({'wood_kind':'Prosze wybrać sortyment oferowany przez {fd} (kod {fdk}).'
                                   .format(fd=self.order.forest_district, fdk=self.order.forest_district.code)})
 
+        deal = self.order.forest_district.get_deal_by_date(self.order.date)
+        remaining = deal.get_remaining(self.wood_kind)
+        if self.amount > remaining:
+            raise ValidationError({'wood_kind': 'Prosze wybrać mniej drewna. Na umowie {d} zostało go jeszcze {rm} m3.'
+                                  .format(rm=remaining, d=deal)})
+
     def save(self, **kwargs):
-        return super(Order_item, self).save(**kwargs)
+        try:
+            former_order_item = Order_item.objects.get(pk=self.pk)
+        except Shipment.DoesNotExist:
+            former_order_item = None
+        amount_delta = Decimal(0)
+        deal = self.order.forest_district.get_deal_by_date(self.order.date)
+        remaining = deal.get_remaining(self.wood_kind)
+        if former_order_item:
+            amount_delta = former_order_item.amount - self.amount
+        if remaining + amount_delta >= 0:
+            return super(Order_item, self).save(**kwargs)
+        return
 
     def can_delete(self):
         for shipment in self.order.shipments.all():
@@ -212,6 +236,19 @@ class Contractor(models.Model):
 
     def get_all_amount_display(self):
         return round(self.get_all_amount(), 2).__str__()
+
+    def get_depot_amount_until(self, date):
+        depot_amount = Decimal(0)
+        if self.is_depot:
+            shipments = Shipment.objects.filter(contractor=self, order__date__lte=date)
+            contractor_shipments = Contractor_shipment.objects.filter(depot=self, date__lte=date)
+            for shipment, contractor_shipment in itertools.izip_longest(shipments, contractor_shipments):
+                print('{} {} {}'.format(shipment, contractor_shipment, depot_amount))
+                if shipment:
+                    depot_amount += shipment.amount
+                if contractor_shipment:
+                    depot_amount -= contractor_shipment.amount
+        return depot_amount
 
     def get_depot_amount(self):
         depot_amount = Decimal(0)
@@ -526,3 +563,61 @@ class Contractor_shipment(models.Model):
                '<span class="glyphicon glyphicon-trash" aria-hidden="true">' \
                '</span>' \
                '</a>'
+
+
+class Deal(models.Model):
+    """Model definition for Deal"""
+    forest_district = models.ForeignKey('Forest_district', on_delete=models.CASCADE, related_name='deals', verbose_name='Nadleśnictwo')
+    code = models.CharField(max_length=30, unique=True, verbose_name='Kod')
+    name = models.CharField(max_length=100, verbose_name='Nazwa')
+    date_from = models.DateField(verbose_name='Obowiązuje od')
+    date_to = models.DateField(verbose_name='Obowiązuje do')
+
+    class Meta:
+        verbose_name = 'Umowa'
+        verbose_name_plural = 'Umowy'
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
+    def is_date_valid(self, date):
+        return self.date_from <= date <= self.date_to
+
+    def get_remaining(self, wood_kind):
+        for deal_item in self.deal_items.all():
+            if deal_item.code in wood_kind.code:
+                return deal_item.get_remaining()
+
+
+class Deal_item(models.Model):
+    """Model definition for Deal item"""
+    deal = models.ForeignKey('Deal', on_delete=models.CASCADE, related_name='deal_items', verbose_name='Umowa')
+    code = models.CharField(max_length=30, verbose_name='Kod sortymentu', help_text='np. W_STANDARD_SW')
+    amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Masa',
+                                 validators=[MinValueValidator(Decimal('0.01'))])  # in m3
+
+    class Meta:
+        verbose_name = 'Pozycja umowy'
+        verbose_name_plural = 'Pozycje umowy'
+
+    def __str__(self):
+        return self.deal.name + ' - ' + self.code
+
+    def __unicode__(self):
+        return self.deal.name + ' - ' + self.code
+
+    def get_remaining(self):
+        remaining = self.amount
+        order_item_list = Order_item.objects.filter(wood_kind__code__icontains=self.code, order__date__gte=self.deal.date_from, order__date__lte=self.deal.date_to)
+        for order_item in order_item_list:
+            remaining -= order_item.amount
+        return remaining
+
+    def get_amount_display(self):
+        return self.amount.__str__()
+
+    def get_remaining_display(self):
+        return round(self.get_remaining(), 2).__str__()

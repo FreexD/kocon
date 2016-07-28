@@ -84,14 +84,15 @@ class DriverReportForm(forms.Form):
 
         order_list = Order.objects.filter(driver=driver, date__gte=date_from, date__lte=date_to)
         final_shipment_list = Final_shipment.objects.filter(driver=driver, date__gte=date_from, date__lte=date_to)
+        contractor_shipment_list = Contractor_shipment.objects.filter(driver=driver, date__gte=date_from, date__lte=date_to)
 
-        return order_list, final_shipment_list
+        return order_list, final_shipment_list, contractor_shipment_list
 
 
 class ContractorReportForm(forms.Form):
     date_from = forms.DateField(label='Od')
     date_to = forms.DateField(label='Do')
-    contractor = forms.ModelChoiceField(queryset=Contractor.objects.all(), label='Składnica')
+    contractor = forms.ModelChoiceField(queryset=Contractor.objects.filter(is_depot=True), label='Składnica')
 
     def get_context_for_contractor(self):
         """:returns order_list, final_shipment_list"""
@@ -100,8 +101,9 @@ class ContractorReportForm(forms.Form):
         contractor = self.cleaned_data['contractor']
 
         shipment_list = Shipment.objects.filter(contractor=contractor, order__date__gte=date_from, order__date__lte=date_to)
+        contractor_shipment_list = Contractor_shipment.objects.filter(depot=contractor, date__gte=date_from, date__lte=date_to)
 
-        return shipment_list
+        return shipment_list, contractor_shipment_list
 
 
 class ContractorShipmentForm(forms.ModelForm):

@@ -35,6 +35,10 @@
                 <td>Dostawy końcowe - łączna masa [m³]</td>
                 <td><b>{{ final_shipments_amount }}</b></td>
             </tr>
+            <tr class="bg-info">
+                <td>Dostawy końcowe ze składnic - łączna masa [m³]</td>
+                <td><b>{{ contractor_shipments_amount }}</b></td>
+            </tr>
             <tr class="bg-success">
                 <td>Dostawy łącznie - masa [m³]</td>
                 <td><b>{{ whole_amount }}</b></td>
@@ -48,7 +52,6 @@
             <thead>
                 <tr>
                     <th>Nr kwitu</th>
-                    <th>Sortyment</th>
                     <th>Masa [m³]</th>
                     <th>Kontrahent</th>
                     <th>Rodzaj drewna</th>
@@ -60,7 +63,6 @@
             {% for shipment in shipment_list %}
                 <tr>
                     <td><a href="{% url 'order_detail' shipment.order.pk %}" data-remote="false" data-toggle="modal" data-target="#myModal">{{ shipment.order }}</a></td>
-                    <td>{{ shipment.wood_kind }}</td>
                     <td>{{ shipment.get_amount_display }}</td>
                     <td>{{ shipment.contractor }}</td>
                     <td>Nie dotyczy</td>
@@ -84,7 +86,6 @@
             <thead>
                 <tr>
                     <th>Nr kwitu</th>
-                    <th>Sortyment</th>
                     <th>Masa [m³]</th>
                     <th>Kontrahent</th>
                     <th>Rodzaj drewna</th>
@@ -95,6 +96,7 @@
             <tbody>
             {% for final_shipment in final_shipment_list %}
                 <tr>
+{#                #}
                     <td><a href="{% url 'order_detail' final_shipment.order.pk %}" data-remote="false" data-toggle="modal" data-target="#myModal">{{ final_shipment.order }}</a></td>
                     <td>{{ final_shipment.wood_kind }}</td>
                     <td>{{ final_shipment.get_amount_display }}</td>
@@ -110,6 +112,40 @@
             <div class="panel panel-info">
               <div class="panel-heading">
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Ten kierowca nie ma żadnych dostaw końcowych w tym okresie.
+              </div>
+            </div>
+        {% endif %}
+
+        <h2>Dostawy końcowe ze składnic</h2>
+        {% if contractor_shipment_list %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Składnica</th>
+                    <th>Masa [m³]</th>
+                    <th>Kontrahent</th>
+                    <th>Rodzaj drewna</th>
+                    <th>Kierowca</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for contractor_shipment in contractor_shipment_list %}
+                <tr>
+                    <td>{{ contractor_shipment.depot }}</td>
+                    <td>{{ contractor_shipment.get_amount_display }}</td>
+                    <td>{{ contractor_shipment.contractor }}</td>
+                    <td>{{ contractor_shipment.wood_type }}</td>
+                    <td>{{ contractor_shipment.driver }}</td>
+                    <td>{{ contractor_shipment.date }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+          </table>
+        {% else %}
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Ten kierowca nie ma żadnych dostaw końcowych ze składnicy w tym okresie.
               </div>
             </div>
         {% endif %}

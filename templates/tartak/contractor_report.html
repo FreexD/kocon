@@ -28,13 +28,21 @@
                 <td>{{ date_to }}</td>
             </tr>
             <tr class="bg-info">
-                <td>Dostawy pośrednie - łączna masa [m³]</td>
+                <td>Masa na składnicy przed {{ date_from }} [m³]</td>
+                <td><b>{{ before_amount }}</b></td>
+            </tr>
+            <tr class="bg-info">
+                <td>Dostawy pośrednie na składnicę - łączna masa [m³]</td>
                 <td><b>{{ shipments_amount }}</b></td>
             </tr>
-{#            <tr class="bg-success">#}
-{#                <td>Ile pozostało na składnicy - masa [m³]</td>#}
-{#                <td><b>{{ shipped_amount }}</b></td>#}
-{#            </tr>#}
+            <tr class="bg-info">
+                <td>Dostawy końcowe ze składnicy - łączna masa [m³]</td>
+                <td><b>{{ contractor_shipments_amount }}</b></td>
+            </tr>
+            <tr class="bg-success">
+                <td>Ile pozostało na składnicy - masa [m³]</td>
+                <td><b>{{ whole_amount }}</b></td>
+            </tr>
         </tbody>
     </table>
 
@@ -70,6 +78,40 @@
             <div class="panel panel-info">
               <div class="panel-heading">
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Na tą składnicę nie ma żadnych dostaw pośrednich w tym okresie.
+              </div>
+            </div>
+        {% endif %}
+
+        <h2>Dostawy końcowe ze składnic</h2>
+        {% if contractor_shipment_list %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Składnica</th>
+                    <th>Masa [m³]</th>
+                    <th>Kontrahent</th>
+                    <th>Rodzaj drewna</th>
+                    <th>Kierowca</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for contractor_shipment in contractor_shipment_list %}
+                <tr>
+                    <td>{{ contractor_shipment.depot }}</td>
+                    <td>{{ contractor_shipment.get_amount_display }}</td>
+                    <td>{{ contractor_shipment.contractor }}</td>
+                    <td>{{ contractor_shipment.wood_type }}</td>
+                    <td>{{ contractor_shipment.driver }}</td>
+                    <td>{{ contractor_shipment.date }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+          </table>
+        {% else %}
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Ten kierowca nie ma żadnych dostaw końcowych ze składnicy w tym okresie.
               </div>
             </div>
         {% endif %}
