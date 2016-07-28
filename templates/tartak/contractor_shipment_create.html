@@ -1,0 +1,39 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="index">
+
+    <div class="container theme-showcase" role="main">
+
+      <div class="page-header">
+        <h1>Dodaj dostawę końcową ze składnicy {{ depot }}</h1>
+      </div>
+
+    {% if depot.get_depot_amount > 0 %}
+
+    <form method="post" action="{% url 'contractor_shipment_create' depot.pk %}">
+        {% csrf_token %}
+
+        {% include 'forms/form_hidden_fields.html' with fields=form.hidden_fields %}
+        {% include 'forms/form_fields.html' with fields=form.visible_fields %}
+
+        <input class="btn btn-default"  type="submit" value="Dodaj" />
+        <a href="{% url 'depot_list' %}" class="btn btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do składnic </a>
+    </form>
+
+    {% else %}
+        <div class="panel panel-danger">
+              <div class="panel-heading">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" ></span> Nie możesz teraz dodać dostawy ze składnicy ponieważ znajduje sie na niej obecnie {{ depot.get_depot_amount_display }} m3.
+              </div>
+            </div>
+        <a href="{% url 'depot_list' %}" class="btn btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do składnic </a>
+    {% endif %}
+
+    </div> <!-- /container -->
+
+    </div>
+
+{% endblock %}

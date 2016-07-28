@@ -4,7 +4,7 @@ from decimal import Decimal
 
 from django import forms
 
-from tartak.models import Order_item, Shipment, Order, Contractor, Final_shipment, Driver
+from tartak.models import Order_item, Shipment, Order, Contractor, Final_shipment, Driver, Contractor_shipment
 
 
 class OrderItemForm(forms.ModelForm):
@@ -102,3 +102,12 @@ class ContractorReportForm(forms.Form):
         shipment_list = Shipment.objects.filter(contractor=contractor, order__date__gte=date_from, order__date__lte=date_to)
 
         return shipment_list
+
+
+class ContractorShipmentForm(forms.ModelForm):
+    class Meta:
+        model = Contractor_shipment
+        fields = ('depot', 'contractor',  'wood_type', 'amount', 'date', 'driver')
+        widgets = {
+            'depot': forms.HiddenInput,
+        }

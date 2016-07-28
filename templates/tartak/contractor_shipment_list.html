@@ -1,0 +1,55 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="index">
+
+    <div class="container theme-showcase" role="main">
+
+      <div class="page-header">
+        <h1>Dostawy końcowe ze składnicy {{ depot }}</h1>
+      </div>
+        <h2>Składnica {{ depot }}</h2>
+        <table class="table">
+        <tbody>
+            <tr>
+                <td>Kod</td>
+                <td>{{ depot.code }}</td>
+            </tr>
+            <tr>
+                <td>Nazwa</td>
+                <td>{{ depot.name }}</td>
+            </tr>
+            <tr {% if depot.get_depot_amount >= 0 %} class="bg-success" {% else %} class="bg-danger" {% endif %}>
+                <td>Masa łączna aktualnie na składnicy [m³]</td>
+                <td>{{ depot.get_depot_amount_display }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+        <br>
+
+    {{ datatable }}
+
+    <br>
+
+        <a href="{% url 'depot_list' %}" class="btn btn-lg btn-primary" > <span class="glyphicon glyphicon-list-alt" aria-hidden="true" ></span> Wróć do składnic </a>
+        <a href="{% url 'contractor_shipment_create' depot.pk %}" class="btn btn-lg btn-info" > <span class="glyphicon glyphicon-road" aria-hidden="true" ></span> Dodaj dostawę końcową ze składnicy</a>
+        <a href="javascript:history.go(0)" class="btn btn-lg btn-info" > <span class="glyphicon glyphicon-refresh" aria-hidden="true" ></span> Odśwież </a>
+
+
+    <!-- Default bootstrap modal example -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+        </div>
+      </div>
+    </div>
+
+    </div> <!-- /container -->
+
+    </div>
+
+{% endblock %}

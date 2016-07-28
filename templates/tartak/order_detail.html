@@ -47,7 +47,7 @@
             </thead>
             <tbody>
             {% for order_item in order.order_items.all %}
-                <tr>
+                <tr {% if order.is_depot %} {% if not order_item.has_difference %} class="bg-success" {% else %} class="bg-danger" {% endif %} {% endif %} >
                     <td>{{ order_item.wood_kind }}</td>
                     <td>{{ order_item.get_amount_display }}</td>
                     <td>{{ order_item.get_price_display }}</td>

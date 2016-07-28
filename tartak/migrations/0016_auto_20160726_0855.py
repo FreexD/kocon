@@ -16,4 +16,8 @@ class Migration(migrations.Migration):
             model_name='final_shipment',
             name='wood_kind',
         ),
+        migrations.RemoveField(
+            model_name='forest_district',
+            name='contract',
+        ),
     ]

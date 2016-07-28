@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.core.validators import MinValueValidator
 from django.db import models
 
+import itertools
 
 class Driver(models.Model):
     """Model definition for DRIVER"""
@@ -211,6 +212,43 @@ class Contractor(models.Model):
 
     def get_all_amount_display(self):
         return round(self.get_all_amount(), 2).__str__()
+
+    def get_depot_amount(self):
+        depot_amount = Decimal(0)
+        if self.is_depot:
+            shipments = Shipment.objects.filter(contractor=self)
+            contractor_shipments = Contractor_shipment.objects.filter(depot=self)
+            for shipment, contractor_shipment in itertools.izip_longest(shipments, contractor_shipments):
+                print('{} {} {}'.format(shipment, contractor_shipment, depot_amount))
+                if shipment:
+                    depot_amount += shipment.amount
+                if contractor_shipment:
+                    depot_amount -= contractor_shipment.amount
+        return depot_amount
+
+    def get_depot_amount_display(self):
+        return round(self.get_depot_amount(), 2).__str__()
+
+    def get_action_buttons(self):
+        buttons = '<a href="' \
+                  + reverse('contractor_shipment_list', kwargs={'pk': self.pk}) + \
+                  '" class="btn btn-sm btn-info">' \
+                  '<span class="glyphicon glyphicon-road" aria-hidden="true">' \
+                  '</span>' \
+                  '</a>' \
+                  '<a href="' \
+                  + reverse('shipment_for_depot_list', kwargs={'pk': self.pk}) + \
+                  '" class="btn btn-sm btn-success">' \
+                  '<span class="glyphicon glyphicon-tree-conifer" aria-hidden="true">' \
+                  '</span>' \
+                  '</a>' \
+                  '<a href="' \
+                  + reverse('contractor_shipment_create', kwargs={'pk': self.pk}) + \
+                  '" class="btn btn-sm btn-info">' \
+                  ' <span class="glyphicon glyphicon-road" aria-hidden="true">' \
+                  '</span> Dodaj' \
+                  '</a>'
+        return buttons
 
     class Meta:
         verbose_name = 'Kontrahent'
@@ -470,10 +508,10 @@ class Contractor_shipment(models.Model):
         return super(Contractor_shipment, self).save(**kwargs)
 
     def __str__(self):
-        return self.order.__str__() + " - " + self.wood_type.__str__() + " - " + self.amount.__str__()
+        return self.depot.__str__() + " - " + self.wood_type.__str__() + " - " + self.amount.__str__()
 
     def __unicode__(self):
-        return self.order.__unicode__() + " - " + self.wood_type.__str__() + " - " + self.amount.__str__()
+        return self.depot.__unicode__() + " - " + self.wood_type.__str__() + " - " + self.amount.__str__()
 
     def get_amount_display(self):
         return self.amount.__str__()
