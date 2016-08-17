@@ -30,7 +30,9 @@ urlpatterns = [
     # reports
     url(r'^reports$', views.ReportListView.as_view(), name='reports'),
     url(r'^reports/drivers$', views.DriverReportView.as_view(), name='driver_report'),
+    url(r'^reports/depots$', views.DepotReportView.as_view(), name='depot_report'),
     url(r'^reports/contractors$', views.ContractorReportView.as_view(), name='contractor_report'),
+    url(r'^reports/deals$', views.DealReportView.as_view(), name='deal_report'),
     # contractor shipments
     url(r'^(?P<pk>\d+)/contractor_shipment/list$', views.ContractorShipmentListView.as_view(), name='contractor_shipment_list'),
     url(r'^(?P<pk>\d+)/contractor_shipment/create$', views.ContractorShipmentCreateView.as_view(), name='contractor_shipment_create'),

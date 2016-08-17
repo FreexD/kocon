@@ -11,9 +11,10 @@ import django.views.generic as views
 from django.views.generic.edit import FormView
 
 from tartak.forms import OrderItemForm, ShipmentForm, ContractorForm, AllShipmentForm, FinalShipmentForm, \
-    AllFinalShipmentForm, DriverReportForm, ContractorReportForm, ContractorShipmentForm
+    AllFinalShipmentForm, DriverReportForm, ContractorReportForm, ContractorShipmentForm, DepotReportForm, \
+    DealReportForm
 from tartak.models import Order, Wood_kind, Order_item, Shipment, Contractor, Final_shipment, Driver, \
-    Contractor_shipment
+    Contractor_shipment, Deal
 
 
 # ORDERS
@@ -523,6 +524,52 @@ class ReportListView(views.TemplateView):
     template_name = 'tartak/reports.html'
 
 
+class DepotReportView(views.TemplateView):
+    template_name = 'tartak/depot_repot.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DepotReportView, self).get_context_data(**kwargs)
+        if self.request.GET:
+            contractor_form = DepotReportForm(self.request.GET)
+        else:
+            contractor_form = DepotReportForm()
+        context['form'] = contractor_form
+
+        contractor = self.request.GET.get('contractor')
+        date_from = self.request.GET.get('date_from')
+        date_to = self.request.GET.get('date_to')
+
+        if contractor or date_from or date_to:
+            if contractor_form.is_valid():
+
+                context['contractor'] = Contractor.objects.get(pk=contractor)
+                context['date_from'] = date_from
+                context['date_to'] = date_to
+
+                context['form_valid'] = True
+                shipment_list, contractor_shipment_list = contractor_form.get_context_for_depot()
+                # shipments
+                shipments_amount = Decimal(0.0)
+                for shipment in shipment_list:
+                    shipments_amount += shipment.amount
+                context['shipment_list'] = shipment_list
+                context['shipments_amount'] = shipments_amount
+                # contractor shipments
+                contractor_shipments_amount = Decimal(0.0)
+                for contractor_shipment in contractor_shipment_list:
+                    contractor_shipments_amount += contractor_shipment.amount
+                context['contractor_shipment_list'] = contractor_shipment_list
+                context['contractor_shipments_amount'] = contractor_shipments_amount
+                # before amount
+                contractor = Contractor.objects.get(pk=contractor)
+                before_amount = contractor.get_depot_amount_until(date_from)
+                context['before_amount'] = contractor.get_depot_amount_until(date_from)
+                # whole sum
+                context['whole_amount'] = before_amount + shipments_amount - contractor_shipments_amount
+
+        return context
+
+
 class ContractorReportView(views.TemplateView):
     template_name = 'tartak/contractor_report.html'
 
@@ -546,25 +593,51 @@ class ContractorReportView(views.TemplateView):
                 context['date_to'] = date_to
 
                 context['form_valid'] = True
-                shipment_list, contractor_shipment_list = contractor_form.get_context_for_contractor()
-                # shipments
-                shipments_amount = Decimal(0.0)
-                for shipment in shipment_list:
-                    shipments_amount += shipment.amount
-                context['shipment_list'] = shipment_list
-                context['shipments_amount'] = shipments_amount
+                final_shipment_list, contractor_shipment_list = contractor_form.get_context_for_contractor()
+                # final_shipments
+                final_shipments_amount = Decimal(0.0)
+                for final_shipment in final_shipment_list:
+                    final_shipments_amount += final_shipment.amount
+                context['final_shipment_list'] = final_shipment_list
+                context['final_shipments_amount'] = final_shipments_amount
                 # contractor shipments
                 contractor_shipments_amount = Decimal(0.0)
                 for contractor_shipment in contractor_shipment_list:
                     contractor_shipments_amount += contractor_shipment.amount
                 context['contractor_shipment_list'] = contractor_shipment_list
                 context['contractor_shipments_amount'] = contractor_shipments_amount
-                # before amount
-                contractor = Contractor.objects.get(pk=contractor)
-                before_amount = contractor.get_depot_amount_until(date_from)
-                context['before_amount'] = contractor.get_depot_amount_until(date_from)
                 # whole sum
-                context['whole_amount'] = before_amount + shipments_amount - contractor_shipments_amount
+                context['whole_amount'] = final_shipments_amount + contractor_shipments_amount
+
+        return context
+
+
+class DealReportView(views.TemplateView):
+    template_name = 'tartak/deal_report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DealReportView, self).get_context_data(**kwargs)
+        if self.request.GET:
+            deal_form = DealReportForm(self.request.GET)
+        else:
+            deal_form = DealReportForm()
+        context['form'] = deal_form
+
+        deal = self.request.GET.get('deal')
+
+        if deal:
+            if deal_form.is_valid():
+
+                context['deal'] = Deal.objects.get(pk=deal)
+
+                context['form_valid'] = True
+                order_item_list = deal_form.get_context_for_deal()
+                # final_shipments
+                order_items_amount = Decimal(0.0)
+                for order_item in order_item_list:
+                    order_items_amount += order_item.amount
+                context['order_item_list'] = order_item_list
+                context['order_items_amount'] = order_items_amount
 
         return context
 

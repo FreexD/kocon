@@ -1,0 +1,38 @@
+{% if original %}
+    <h4>Pozycje umowy {{ original }}</h4>
+        <table class="table">
+                <thead>
+                    <tr>
+                        <th>Sortyment</th>
+                        <th>Masa na umowie [m³]</th>
+                        <th>Masa pozostała [m³]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for deal_item in original.deal_items.all %}
+                    <tr >
+                        <td>{{ deal_item.code }}</td>
+                        <td>{{ deal_item.get_amount_display }}</td>
+                        <td>{{ deal_item.get_remaining_display }}</td>
+                    </tr>
+                {% endfor %}
+          </tbody>
+          </table>
+    <br>
+    <h4>Sortymenty dostępne dla nadleśnictwa {{ original.forest_district }}</h4>
+        <table class="table">
+                <thead>
+                    <tr>
+                        <th>Sortyment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for wood_kind in original.forest_district.wood_kinds.all %}
+                    <tr >
+                        <td>{{ wood_kind.code }}</td>
+                    </tr>
+                {% endfor %}
+          </tbody>
+          </table>
+    <br>
+{% endif %}

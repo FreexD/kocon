@@ -17,7 +17,7 @@
         <div class="media">
           <div class="media-left">
             <a href="{% url 'driver_report' %}">
-              <img class="media-object" src="{% static 'images/info-icon.png' %}" alt="Kierowcy">
+              <img class="media-object" src="{% static 'images/icon-wheel.png' %}" alt="Kierowcy">
             </a>
           </div>
           <div class="media-body">
@@ -27,7 +27,24 @@
         </div>
 
             </div>
-</div></a>
+        </div>
+
+        <div class="panel panel-primary">
+        <div class="panel-body">
+
+        <div class="media">
+          <div class="media-left">
+            <a href="{% url 'depot_report' %}">
+              <img class="media-object" src="{% static 'images/icon-depot.png' %}" alt="Składnice">
+            </a>
+          </div>
+          <div class="media-body">
+            <h4 class="media-heading">Składnice</h4>
+            Dla wybranej składnicy oraz dat od, do pokazuje zestawienie dostarczonych na nie w tym czasie dostaw pośrednich i dostaw końcowych z nich.
+          </div>
+        </div>
+        </div>
+        </div>
 
         <div class="panel panel-primary">
         <div class="panel-body">
@@ -35,16 +52,32 @@
         <div class="media">
           <div class="media-left">
             <a href="{% url 'contractor_report' %}">
-              <img class="media-object" src="{% static 'images/info-icon.png' %}" alt="Składnice">
+              <img class="media-object" src="{% static 'images/icon-truck.png' %}" alt="Kontrahenci">
             </a>
           </div>
           <div class="media-body">
-            <h4 class="media-heading">Składnice</h4>
-            Dla wybranej składnicy oraz dat od, do pokazuje zestawienie dostarczonych na nie w tym czasie dostaw pośrednich.
+            <h4 class="media-heading">Kontrahenci</h4>
+            Dla wybranego kontrahenta oraz dat od, do pokazuje zestawienie dostarczonych do niego w tym czasie dostaw koncowych i dostaw koncowych ze składnic.
           </div>
         </div>
-    </div>
-</div></a>
+        </div>
+        </div>
+
+        <div class="panel panel-primary">
+        <div class="panel-body">
+        <div class="media">
+          <div class="media-left">
+            <a href="{% url 'deal_report' %}">
+              <img class="media-object" src="{% static 'images/icon-deal.png' %}" alt="Umowy">
+            </a>
+          </div>
+          <div class="media-body">
+            <h4 class="media-heading">Umowy</h4>
+            Dla wybranej umowy pokazuje zestawienie pozycji dostaw z nadleśnictwa z którym została zawarta w czasie trwania jej ważności.
+          </div>
+        </div>
+        </div>
+        </div>
 
     </div> <!-- /container -->
 

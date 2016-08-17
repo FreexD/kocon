@@ -4,7 +4,7 @@ from decimal import Decimal
 
 from django import forms
 
-from tartak.models import Order_item, Shipment, Order, Contractor, Final_shipment, Driver, Contractor_shipment
+from tartak.models import Order_item, Shipment, Order, Contractor, Final_shipment, Driver, Contractor_shipment, Deal
 
 
 class OrderItemForm(forms.ModelForm):
@@ -77,7 +77,7 @@ class DriverReportForm(forms.Form):
     driver = forms.ModelChoiceField(queryset=Driver.objects.all(), label='Kierowca')
 
     def get_context_for_driver(self):
-        """:returns order_list, final_shipment_list"""
+        """:returns order_list, final_shipment_list, contractor_shipment_list"""
         date_from = self.cleaned_data['date_from']
         date_to = self.cleaned_data['date_to']
         driver = self.cleaned_data['driver']
@@ -89,13 +89,13 @@ class DriverReportForm(forms.Form):
         return order_list, final_shipment_list, contractor_shipment_list
 
 
-class ContractorReportForm(forms.Form):
+class DepotReportForm(forms.Form):
     date_from = forms.DateField(label='Od')
     date_to = forms.DateField(label='Do')
     contractor = forms.ModelChoiceField(queryset=Contractor.objects.filter(is_depot=True), label='Składnica')
 
-    def get_context_for_contractor(self):
-        """:returns order_list, final_shipment_list"""
+    def get_context_for_depot(self):
+        """:returns shipment_list, contractor_shipment_list"""
         date_from = self.cleaned_data['date_from']
         date_to = self.cleaned_data['date_to']
         contractor = self.cleaned_data['contractor']
@@ -104,6 +104,35 @@ class ContractorReportForm(forms.Form):
         contractor_shipment_list = Contractor_shipment.objects.filter(depot=contractor, date__gte=date_from, date__lte=date_to)
 
         return shipment_list, contractor_shipment_list
+
+
+class ContractorReportForm(forms.Form):
+    date_from = forms.DateField(label='Od')
+    date_to = forms.DateField(label='Do')
+    contractor = forms.ModelChoiceField(queryset=Contractor.objects.filter(is_depot=False), label='Kontrahent')
+
+    def get_context_for_contractor(self):
+        """:returns final_shipment_list, contractor_shipment_list"""
+        date_from = self.cleaned_data['date_from']
+        date_to = self.cleaned_data['date_to']
+        contractor = self.cleaned_data['contractor']
+
+        final_shipment_list = Final_shipment.objects.filter(contractor=contractor, date__gte=date_from, date__lte=date_to)
+        contractor_shipment_list = Contractor_shipment.objects.filter(contractor=contractor, date__gte=date_from, date__lte=date_to)
+
+        return final_shipment_list, contractor_shipment_list
+
+
+class DealReportForm(forms.Form):
+    deal = forms.ModelChoiceField(queryset=Deal.objects.all(), label='Umowa')
+
+    def get_context_for_deal(self):
+        """:returns order_item_list"""
+        deal = self.cleaned_data['deal']
+
+        order_item_list = Order_item.objects.filter(order__forest_district=deal.forest_district, order__date__lte=deal.date_to, order__date__gte=deal.date_from)
+
+        return order_item_list
 
 
 class ContractorShipmentForm(forms.ModelForm):

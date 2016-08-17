@@ -1,0 +1,140 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="index">
+
+    <div class="container theme-showcase" role="main">
+
+      <div class="page-header">
+        <h1>Raport dla umowy</h1>
+      </div>
+
+    {% if form_valid %}
+
+        <h2>{{ deal }}</h2>
+
+        <br>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>Kod</td>
+                <td>{{ deal.code }}</td>
+            </tr>
+            <tr>
+                <td>Nazwa</td>
+                <td>{{ deal }}</td>
+            </tr>
+            <tr>
+                <td>Obowiązuje od</td>
+                <td>{{ deal.date_from }}</td>
+            </tr>
+            <tr>
+                <td>Obowiązuje do</td>
+                <td>{{ deal.date_to }}</td>
+            </tr>
+            <tr class="bg-success">
+                <td>Pozycje dostawy dla umowy - masa łączna [m³]</td>
+                <td><b>{{ order_items_amount }}</b></td>
+            </tr>
+        </tbody>
+    </table>
+        <br>
+        <h4>Pozycje umowy</h4>
+    <table class="table">
+            <thead>
+                <tr>
+                    <th>Sortyment</th>
+                    <th>Masa na umowie [m³]</th>
+                    <th>Masa pozostała [m³]</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for deal_item in deal.deal_items.all %}
+                <tr >
+                    <td>{{ deal_item.code }}</td>
+                    <td>{{ deal_item.get_amount_display }}</td>
+                    <td>{{ deal_item.get_remaining_display }}</td>
+                </tr>
+            {% endfor %}
+      </tbody>
+      </table>
+
+        <h2>Pozycje dostaw dla umowy</h2>
+        {% if order_item_list %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nr kwitu</th>
+                    <th>Sortyment</th>
+                    <th>Masa [m³]</th>
+                    <th>Nadleśnictwo</th>
+                    <th>Umowa</th>
+                    <th>Kierowca</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for order_item in order_item_list %}
+                <tr>
+                    <td><a href="{% url 'order_detail' order_item.order.pk %}" data-remote="false" data-toggle="modal" data-target="#myModal">{{ order_item.order }}</a></td>
+                    <td>{{ order_item.wood_kind }}</td>
+                    <td>{{ order_item.get_amount_display }}</td>
+                    <td>{{ order_item.order.forest_district }}</td>
+                    <td>{{ deal }}</td>
+                    <td>{{ order_item.order.driver }}</td>
+                    <td>{{ order_item.order.date }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+          </table>
+        {% else %}
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true" ></span> Do tej umowy nie ma żadnych pozycji dostaw w okresie jej ważności.
+              </div>
+            </div>
+        {% endif %}
+
+    <a href="{% url 'deal_report' %}" class="btn btn-info">
+            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Zobacz raport innej umowy
+        </a>
+        <a href="{% url 'reports' %}" class="btn btn-info">
+            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Wróć do raportów
+        </a>
+
+    {% else %}
+
+    <p>Wybierz umowę</p>
+
+    <form method="get" action="{% url 'deal_report' %}">
+        {% csrf_token %}
+
+        {% include 'forms/form_hidden_fields.html' with fields=form.hidden_fields %}
+        {% include 'forms/form_fields.html' with fields=form.visible_fields %}
+
+        <input class="btn btn-default"  type="submit" value="Generuj raport" />
+        <a href="{% url 'reports' %}" class="btn btn-info">
+            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Wróć do raportów
+        </a>
+    </form>
+
+    {% endif %}
+
+    <!-- Default bootstrap modal example -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+        </div>
+      </div>
+    </div>
+
+
+    </div> <!-- /container -->
+
+    </div>
+
+{% endblock %}
