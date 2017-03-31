@@ -12,9 +12,9 @@ from django.views.generic.edit import FormView
 
 from tartak.forms import OrderItemForm, ShipmentForm, ContractorForm, AllShipmentForm, FinalShipmentForm, \
     AllFinalShipmentForm, DriverReportForm, ContractorReportForm, ContractorShipmentForm, DepotReportForm, \
-    DealReportForm
+    DealReportForm, WoodKindReportForm
 from tartak.models import Order, Wood_kind, Order_item, Shipment, Contractor, Final_shipment, Driver, \
-    Contractor_shipment, Deal
+    Contractor_shipment, Deal, Forest_district
 
 
 # ORDERS
@@ -689,6 +689,46 @@ class DriverReportView(views.TemplateView):
                 context['contractor_shipments_amount'] = contractor_shipments_amount
                 # whole sum
                 context['whole_amount'] = final_shipments_amount + shipments_amount + contractor_shipments_amount
+
+        return context
+
+
+class WoodKindReportView(views.TemplateView):
+    template_name = 'tartak/wood_kind_report.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(WoodKindReportView, self).get_context_data(**kwargs)
+        if self.request.GET:
+            wood_kind_form = WoodKindReportForm(self.request.GET)
+        else:
+            wood_kind_form = WoodKindReportForm()
+        context['form'] = wood_kind_form
+
+        wood_kind = self.request.GET.get('wood_kind')
+        forest_district = self.request.GET.get('forest_district')
+        date_from = self.request.GET.get('date_from')
+        date_to = self.request.GET.get('date_to')
+
+        if forest_district or wood_kind or date_from or date_to:
+            if wood_kind_form.is_valid():
+
+                context['wood_kind'] = Wood_kind.objects.get(pk=wood_kind)
+                context['forest_district'] = Forest_district.objects.get(pk=forest_district)
+                context['date_from'] = date_from
+                context['date_to'] = date_to
+
+                context['form_valid'] = True
+
+                order_item_list = wood_kind_form.get_context_for_wood_kind()
+                whole_amount = Decimal(0.0)
+                whole_price = Decimal(0.0)
+                for order_item in order_item_list:
+                    whole_amount += order_item.amount
+                    whole_price += order_item.get_price()
+
+                context['order_item_list'] = order_item_list
+                context['whole_amount'] = whole_amount
+                context['whole_price'] = whole_price
 
         return context
 

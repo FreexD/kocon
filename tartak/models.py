@@ -94,25 +94,25 @@ class Order_item(models.Model):
             raise ValidationError({'wood_kind':'Prosze wybrać sortyment oferowany przez {fd} (kod {fdk}).'
                                   .format(fd=self.order.forest_district, fdk=self.order.forest_district.code)})
 
-        deal = self.order.forest_district.get_deal_by_date(self.order.date)
-        remaining = deal.get_remaining(self.wood_kind)
-        if self.amount > remaining:
-            raise ValidationError({'amount': 'Prosze wybrać mniej drewna. Na umowie {d} zostało go jeszcze {rm} m3.'
-                                  .format(rm=remaining, d=deal)})
+        # deal = self.order.forest_district.get_deal_by_date(self.order.date)
+        # remaining = deal.get_remaining(self.wood_kind)
+        # if self.amount > remaining:
+        #     raise ValidationError({'amount': 'Prosze wybrać mniej drewna. Na umowie {d} zostało go jeszcze {rm} m3.'
+        #                           .format(rm=remaining, d=deal)})
 
     def save(self, **kwargs):
-        try:
-            former_order_item = Order_item.objects.get(pk=self.pk)
-        except Order_item.DoesNotExist:
-            former_order_item = None
-        amount_delta = Decimal(0)
-        deal = self.order.forest_district.get_deal_by_date(self.order.date)
-        remaining = deal.get_remaining(self.wood_kind)
-        if former_order_item:
-            amount_delta = former_order_item.amount - self.amount
-        if remaining + amount_delta >= 0:
-            return super(Order_item, self).save(**kwargs)
-        return
+        # try:
+        #     former_order_item = Order_item.objects.get(pk=self.pk)
+        # except Order_item.DoesNotExist:
+        #     former_order_item = None
+        # amount_delta = Decimal(0)
+        # deal = self.order.forest_district.get_deal_by_date(self.order.date)
+        # remaining = deal.get_remaining(self.wood_kind)
+        # if former_order_item:
+        #     amount_delta = former_order_item.amount - self.amount
+        # if remaining + amount_delta >= 0:
+        return super(Order_item, self).save(**kwargs)
+        # return
 
     def can_delete(self):
         for shipment in self.order.shipments.all():

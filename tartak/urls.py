@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^reports$', views.ReportListView.as_view(), name='reports'),
     url(r'^reports/drivers$', views.DriverReportView.as_view(), name='driver_report'),
     url(r'^reports/depots$', views.DepotReportView.as_view(), name='depot_report'),
+    url(r'^reports/woodKinds$', views.WoodKindReportView.as_view(), name='wood_kind_report'),
     url(r'^reports/contractors$', views.ContractorReportView.as_view(), name='contractor_report'),
     url(r'^reports/deals$', views.DealReportView.as_view(), name='deal_report'),
     # contractor shipments
