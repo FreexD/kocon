@@ -735,6 +735,9 @@ class WoodKindReportView(views.TemplateView):
 
 class BackupView(views.TemplateView):
     template_name = 'tartak/backup_instructions.html'
+
+class HelpView(views.TemplateView):
+    template_name = 'tartak/help.html'
 # BACKUP AND RESTORE DATA
 #
 # export: pg_dump <dbname> -t <tablename> -f out.sql
