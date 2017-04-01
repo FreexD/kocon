@@ -130,6 +130,13 @@ class WoodKindReportForm(forms.Form):
     forest_district = forms.ModelChoiceField(queryset=Forest_district.objects.all(), label='Składnica')
     wood_kind = forms.ModelChoiceField(queryset=Wood_kind.objects.all(), label='Sortyment')
 
+    def clean_wood_kind(self):
+        wood_kind = self.cleaned_data['wood_kind']
+        forest_district = self.cleaned_data['forest_district']
+        if not forest_district.wood_kinds.filter(code=wood_kind.code).exists():
+            raise forms.ValidationError("Prosze wybrac sortyment z kodem rozpoczynajacym sie od " + forest_district.code + "!")
+        return wood_kind
+
     def get_context_for_wood_kind(self):
         """:returns order_item_list"""
         date_from = self.cleaned_data['date_from']
