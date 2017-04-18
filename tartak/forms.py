@@ -128,23 +128,24 @@ class WoodKindReportForm(forms.Form):
     date_from = forms.DateField(label='Od')
     date_to = forms.DateField(label='Do')
     forest_district = forms.ModelChoiceField(queryset=Forest_district.objects.all(), label='Składnica')
-    wood_kind = forms.ModelChoiceField(queryset=Wood_kind.objects.all(), label='Sortyment')
+    wood_kinds = forms.ModelMultipleChoiceField(queryset=Wood_kind.objects.all(), label='Sortyment')
 
-    def clean_wood_kind(self):
-        wood_kind = self.cleaned_data['wood_kind']
+    def clean_wood_kinds(self):
+        wood_kinds = self.cleaned_data['wood_kinds']
         forest_district = self.cleaned_data['forest_district']
-        if not forest_district.wood_kinds.filter(code=wood_kind.code).exists():
-            raise forms.ValidationError("Prosze wybrac sortyment z kodem rozpoczynajacym sie od " + forest_district.code + "!")
-        return wood_kind
+        for wood_kind in wood_kinds:
+            if not forest_district.wood_kinds.filter(code=wood_kind.code).exists():
+                raise forms.ValidationError("Prosze wybrac sortyment z kodem rozpoczynajacym sie od " + forest_district.code + "!")
+        return wood_kinds
 
-    def get_context_for_wood_kind(self):
+    def get_context_for_wood_kinds(self):
         """:returns order_item_list"""
         date_from = self.cleaned_data['date_from']
         date_to = self.cleaned_data['date_to']
         forest_district = self.cleaned_data['forest_district']
-        wood_kind = self.cleaned_data['wood_kind']
+        wood_kinds = self.cleaned_data['wood_kinds']
 
-        order_item_list = Order_item.objects.filter(order__date__gte=date_from, order__date__lte=date_to, order__forest_district=forest_district, wood_kind=wood_kind)
+        order_item_list = Order_item.objects.filter(order__date__gte=date_from, order__date__lte=date_to, order__forest_district=forest_district, wood_kind__in=wood_kinds)
 
         return order_item_list
 

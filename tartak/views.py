@@ -704,22 +704,22 @@ class WoodKindReportView(views.TemplateView):
             wood_kind_form = WoodKindReportForm()
         context['form'] = wood_kind_form
 
-        wood_kind = self.request.GET.get('wood_kind')
+        wood_kinds = self.request.GET.getlist('wood_kinds')
         forest_district = self.request.GET.get('forest_district')
         date_from = self.request.GET.get('date_from')
         date_to = self.request.GET.get('date_to')
 
-        if forest_district or wood_kind or date_from or date_to:
+        if forest_district or wood_kinds or date_from or date_to:
             if wood_kind_form.is_valid():
 
-                context['wood_kind'] = Wood_kind.objects.get(pk=wood_kind)
+                context['wood_kinds'] = Wood_kind.objects.filter(pk__in=wood_kinds)
                 context['forest_district'] = Forest_district.objects.get(pk=forest_district)
                 context['date_from'] = date_from
                 context['date_to'] = date_to
 
                 context['form_valid'] = True
 
-                order_item_list = wood_kind_form.get_context_for_wood_kind()
+                order_item_list = wood_kind_form.get_context_for_wood_kinds()
                 whole_amount = Decimal(0.0)
                 whole_price = Decimal(0.0)
                 for order_item in order_item_list:

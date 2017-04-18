@@ -32,8 +32,8 @@
                 <td>{{ forest_district }}</td>
             </tr>
             <tr>
-                <td>Sortyment</td>
-                <td>{{ wood_kind }}</td>
+                <td>Sortymenty</td>
+                <td>{% for wood_kind in wood_kinds %} {{ wood_kind }} <br>{% endfor %}</td>
             </tr>
             <tr class="bg-info">
                 <td>Zakupione drewno - masa łączna [m³]</td>
