@@ -135,7 +135,7 @@ class WoodKindReportForm(forms.Form):
         forest_district = self.cleaned_data['forest_district']
         for wood_kind in wood_kinds:
             if not forest_district.wood_kinds.filter(code=wood_kind.code).exists():
-                raise forms.ValidationError("Prosze wybrać tylko sortymenty z kodem rozpoczynajacym sie od " + forest_district.code + "!")
+                raise forms.ValidationError("Prosze wybrac tylko sortymenty z kodem rozpoczynajacym sie od " + forest_district.code + "!")
         return wood_kinds
 
     def get_context_for_wood_kinds(self):
